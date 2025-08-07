@@ -253,32 +253,14 @@ class ColorFilterEffect(BaseEffect):
         # Apply overlay with alpha blending or fallback
         try:
             # Try to use AlphaBlend for proper transparency
-            blend_func = ctypes.Structure._fields_ = [
-                ('BlendOp', ctypes.c_ubyte),
-                ('BlendFlags', ctypes.c_ubyte),
-                ('SourceConstantAlpha', ctypes.c_ubyte),
-                ('AlphaFormat', ctypes.c_ubyte)
-            ]
-            
-            class BLENDFUNCTION(ctypes.Structure):
-                _fields_ = [
-                    ('BlendOp', ctypes.c_ubyte),
-                    ('BlendFlags', ctypes.c_ubyte),
-                    ('SourceConstantAlpha', ctypes.c_ubyte),
-                    ('AlphaFormat', ctypes.c_ubyte)
-                ]
-            
-            bf = BLENDFUNCTION()
-            bf.BlendOp = 0  # AC_SRC_OVER
-            bf.BlendFlags = 0
-            bf.SourceConstantAlpha = 60  # ~25% opacity
-            bf.AlphaFormat = 0
+            # Pack the blend function as a 32-bit integer (AC_SRC_OVER=0, flags=0, alpha=60, format=0)
+            blend_func = ctypes.c_ulong(60 << 16)  # SourceConstantAlpha in the third byte
             
             # Apply alpha blend
             result = ctypes.windll.msimg32.AlphaBlend(
-                self.hdc, self.x, self.y, self.w, self.h,
-                overlay_dc, 0, 0, self.w, self.h,
-                ctypes.cast(ctypes.pointer(bf), ctypes.c_ulong).value
+                int(self.hdc), int(self.x), int(self.y), int(self.w), int(self.h),
+                int(overlay_dc), 0, 0, int(self.w), int(self.h),
+                blend_func
             )
             
             if not result:
