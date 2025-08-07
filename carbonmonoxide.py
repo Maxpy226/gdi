@@ -252,9 +252,18 @@ class RadialBlurEffect(BaseEffect):
         # Radial blur effect
         for i in range(10):
             offset = i * 10
+            # Create a radial blur effect by stretching the bitmap
             ctypes.windll.gdi32.StretchBlt(
-                self.hdc, self.x + offset, self.y + offset, self.w - 2 * offset, self.h - 2 * offset,
-                self.memdc, 0, 0, self.w, self.h,
+                self.hdc, 
+                self.x + offset, 
+                self.y + offset, 
+                self.w - 2 * offset, 
+                self.h - 2 * offset,
+                self.memdc, 
+                0, 
+                0, 
+                self.w, 
+                self.h,
                 win32con.SRCCOPY
             )
 
@@ -293,7 +302,7 @@ class EffectManager:
     def run(self):
         effect = self.get_current_effect()
         # Only one bytebeat at a time
-        if isinstance(effect, ColorEffect) or isinstance(effect, InvertRandColors):
+        if isinstance(effect, ColorEffect) or isinstance(effect, InvertRandColors)  or isinstance(effect, RadialBlurEffect):
             # Stop 8kHz if running
             if self.bytebeat8khz is not None and self.bytebeat8khz.is_alive():
                 self.bytebeat8khz.stop()
