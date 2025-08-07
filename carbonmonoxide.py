@@ -244,6 +244,20 @@ class InvertRandColors(BaseEffect):
         
         time.sleep(0.05) # Short delay between color changes
 
+class RadialBlurEffect(BaseEffect):
+    def run(self):
+        # Capture screen
+        ctypes.windll.gdi32.BitBlt(self.memdc, 0, 0, self.w, self.h, self.hdc, self.x, self.y, win32con.SRCCOPY)
+
+        # Radial blur effect
+        for i in range(10):
+            offset = i * 10
+            ctypes.windll.gdi32.StretchBlt(
+                self.hdc, self.x + offset, self.y + offset, self.w - 2 * offset, self.h - 2 * offset,
+                self.memdc, 0, 0, self.w, self.h,
+                win32con.SRCCOPY
+            )
+
 # =================== Effect Manager ===================
 class EffectManager:
     def __init__(self, hdc, memdc, x, y, w, h):
@@ -252,7 +266,9 @@ class EffectManager:
             (IconSpamEffect(hdc, memdc, x, y, w, h), 6),
             (IconTunnelInvertEffect(hdc, memdc, x, y, w, h), 7),
             (ColorEffect(hdc, memdc, x, y, w, h), 6),
-            (InvertRandColors(hdc, memdc, x, y, w, h), 5)
+            (InvertRandColors(hdc, memdc, x, y, w, h), 7),
+            (RadialBlurEffect(hdc, memdc, x, y, w, h), 5)
+
         ]
         self.start_time = time.time()
         self.current_index = 0
