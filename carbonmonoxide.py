@@ -278,16 +278,17 @@ class MeltingScreenEffect(BaseEffect):
             # Copy the melted strip
             if melt_offset > 0:
                 ctypes.windll.gdi32.BitBlt(
-                    self.hdc,                           # destination DC
-                    self.x + strip_x,                   # dest x
-                    self.y + melt_offset,               # dest y (offset down)
-                    actual_width,                       # width
-                    self.h - melt_offset,               # height (reduced to fit)
-                    self.memdc,                         # source DC
-                    strip_x,                           # source x
-                    0,                                 # source y
-                    win32con.SRCCOPY
+                    ctypes.c_void_p(self.hdc),
+                    ctypes.c_int(self.x + strip_x),
+                    ctypes.c_int(self.y + melt_offset),
+                    ctypes.c_int(actual_width),
+                    ctypes.c_int(self.h - melt_offset),
+                    ctypes.c_void_p(self.memdc),
+                    ctypes.c_int(strip_x),
+                    ctypes.c_int(0),
+                    ctypes.c_uint(win32con.SRCCOPY)
                 )
+
                 
                 # Fill the top area with background color or black
                 black_brush = ctypes.windll.gdi32.GetStockObject(win32con.BLACK_BRUSH)
@@ -295,13 +296,14 @@ class MeltingScreenEffect(BaseEffect):
                 
                 # Fill the gap at the top
                 ctypes.windll.gdi32.PatBlt(
-                    self.hdc,
-                    self.x + strip_x,
-                    self.y,
-                    actual_width,
-                    melt_offset,
-                    win32con.PATCOPY
+                    ctypes.c_void_p(self.hdc),
+                    ctypes.c_int(self.x + strip_x),
+                    ctypes.c_int(self.y),
+                    ctypes.c_int(actual_width),
+                    ctypes.c_int(melt_offset),
+                    ctypes.c_uint(win32con.PATCOPY)
                 )
+
                 
                 ctypes.windll.gdi32.SelectObject(self.hdc, old_brush)
             
