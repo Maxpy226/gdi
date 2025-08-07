@@ -218,90 +218,35 @@ class ColorEffect(BaseEffect):
         ctypes.windll.gdi32.DeleteObject(int(brush))
 
 class ColorFilterEffect(BaseEffect):
-    def __init__(self, hdc, memdc, x, y, w, h):
-        super().__init__(hdc, memdc, x, y, w, h)
-        # Create a DC to store the original screen content
-        self.original_dc = ctypes.windll.gdi32.CreateCompatibleDC(hdc)
-        self.original_bmp = ctypes.windll.gdi32.CreateCompatibleBitmap(hdc, w, h)
-        ctypes.windll.gdi32.SelectObject(self.original_dc, self.original_bmp)
-        # Capture initial screen state
-        ctypes.windll.gdi32.BitBlt(self.original_dc, 0, 0, w, h, hdc, x, y, win32con.SRCCOPY)
-        
-        # Color transition setup
-        self.start_color = RGB(random.randint(0,255), random.randint(0,255), random.randint(0,255))
-        self.target_color = RGB(random.randint(0,255), random.randint(0,255), random.randint(0,255))
-        self.transition_start = time.time()
-        self.transition_duration = 15.0  # 15 seconds per transition
-
-    def get_current_color(self):
-        t = (time.time() - self.transition_start) / self.transition_duration
-        if t >= 1.0:
-            # Start new transition
-            self.start_color = self.target_color
-            self.target_color = RGB(random.randint(0,255), random.randint(0,255), random.randint(0,255))
-            self.transition_start = time.time()
-            t = 0.0
-            
-        # Linear interpolation between colors
-        r1, g1, b1 = self.start_color & 0xFF, (self.start_color >> 8) & 0xFF, (self.start_color >> 16) & 0xFF
-        r2, g2, b2 = self.target_color & 0xFF, (self.target_color >> 8) & 0xFF, (self.target_color >> 16) & 0xFF
-        
-        r = int(r1 + (r2 - r1) * t)
-        g = int(g1 + (g2 - g1) * t)
-        b = int(b1 + (b2 - b1) * t)
-        
-        return RGB(r, g, b)
-
     def run(self):
-        # Get interpolated color
-        current_color = self.get_current_color()
+        # Release and reacquire DC to prevent stacking
+        ctypes.windll.user32.ReleaseDC(0, self.hdc)
+        self.hdc = ctypes.windll.user32.GetDC(0)
         
-        # Create working DC for current frame
+        # Get fresh screen content
         screen_dc = ctypes.windll.gdi32.CreateCompatibleDC(self.hdc)
         screen_bmp = ctypes.windll.gdi32.CreateCompatibleBitmap(self.hdc, self.w, self.h)
-        ctypes.windll.gdi32.SelectObject(screen_dc, screen_bmp)
+        old_bmp = ctypes.windll.gdi32.SelectObject(screen_dc, screen_bmp)
         
-        # Use interpolated color for tinting
-        brush = win32gui.CreateSolidBrush(current_color)
-        tint_dc = ctypes.windll.gdi32.CreateCompatibleDC(self.hdc)
-        tint_bmp = ctypes.windll.gdi32.CreateCompatibleBitmap(self.hdc, self.w, self.h)
-        ctypes.windll.gdi32.SelectObject(tint_dc, tint_bmp)
-        ctypes.windll.gdi32.SelectObject(tint_dc, int(brush))
-        ctypes.windll.gdi32.PatBlt(tint_dc, 0, 0, self.w, self.h, win32con.PATCOPY)
-
-        # 3. Draw the fresh screenshot to the output
+        # Capture current screen
+        ctypes.windll.gdi32.BitBlt(screen_dc, 0, 0, self.w, self.h, self.hdc, self.x, self.y, win32con.SRCCOPY)
+        
+        # Apply color effect
+        color = RGB(random.randint(0,255), random.randint(0,255), random.randint(0,255))
+        brush = win32gui.CreateSolidBrush(color)
+        
+        # Draw the effect
         ctypes.windll.gdi32.BitBlt(self.hdc, self.x, self.y, self.w, self.h, screen_dc, 0, 0, win32con.SRCCOPY)
+        old_brush = ctypes.windll.gdi32.SelectObject(self.hdc, brush)
+        ctypes.windll.gdi32.PatBlt(self.hdc, self.x, self.y, self.w, self.h, win32con.PATINVERT)
+        
+        # Cleanup
+        ctypes.windll.gdi32.SelectObject(self.hdc, old_brush)
+        ctypes.windll.gdi32.DeleteObject(brush)
+        ctypes.windll.gdi32.SelectObject(screen_dc, old_bmp)
+        ctypes.windll.gdi32.DeleteObject(screen_bmp)
+        ctypes.windll.gdi32.DeleteDC(screen_dc)
 
-        # 4. Alpha blend the tint over the screenshot
-        class BLENDFUNCTION(ctypes.Structure):
-            _fields_ = [
-                ("BlendOp", ctypes.c_byte),
-                ("BlendFlags", ctypes.c_byte),
-                ("SourceConstantAlpha", ctypes.c_byte),
-                ("AlphaFormat", ctypes.c_byte)
-            ]
-        blend = BLENDFUNCTION()
-        blend.BlendOp = 0  # AC_SRC_OVER
-        blend.BlendFlags = 0
-        blend.SourceConstantAlpha = 80  # 0-255, lower = more transparent
-        blend.AlphaFormat = 0
-        ctypes.windll.msimg32.AlphaBlend(
-            self.hdc, self.x, self.y, self.w, self.h,
-            tint_dc, 0, 0, self.w, self.h,
-            blend
-        )
-
-        # 5. Cleanup all GDI objects
-        ctypes.windll.gdi32.DeleteObject(int(brush))
-        ctypes.windll.gdi32.DeleteObject(int(tint_bmp))
-        ctypes.windll.gdi32.DeleteDC(int(tint_dc))
-        ctypes.windll.gdi32.DeleteObject(int(screen_bmp))
-        ctypes.windll.gdi32.DeleteDC(int(screen_dc))
-
-    def __del__(self):
-        # Cleanup the stored original content
-        ctypes.windll.gdi32.DeleteObject(self.original_bmp)
-        ctypes.windll.gdi32.DeleteDC(self.original_dc)
 # =================== Effect Manager ===================
 class EffectManager:
     def __init__(self, hdc, memdc, x, y, w, h):
