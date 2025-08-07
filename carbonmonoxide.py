@@ -218,51 +218,120 @@ class ColorEffect(BaseEffect):
         ctypes.windll.gdi32.DeleteObject(int(brush))
 
 class ColorFilterEffect(BaseEffect):
-    def run(self):
-        # Create a fresh DC for the screen content
-        screen_dc = ctypes.windll.gdi32.CreateCompatibleDC(self.hdc)
-        screen_bmp = ctypes.windll.gdi32.CreateCompatibleBitmap(self.hdc, self.w, self.h)
-        old_screen_bmp = ctypes.windll.gdi32.SelectObject(screen_dc, screen_bmp)
+    def __init__(self, hdc, memdc, x, y, w, h):
+        super().__init__(hdc, memdc, x, y, w, h)
+        self.original_dc = None
+        self.original_bmp = None
+        self.old_original_bmp = None
+        self.initialized = False
         
-        # Create another DC for the color overlay
+    def run(self):
+        # Store original screen content only once
+        if not self.initialized:
+            self.capture_original_screen()
+            self.initialized = True
+        
+        # Create overlay DC
         overlay_dc = ctypes.windll.gdi32.CreateCompatibleDC(self.hdc)
         overlay_bmp = ctypes.windll.gdi32.CreateCompatibleBitmap(self.hdc, self.w, self.h)
         old_overlay_bmp = ctypes.windll.gdi32.SelectObject(overlay_dc, overlay_bmp)
         
-        # Capture current screen
-        ctypes.windll.gdi32.BitBlt(screen_dc, 0, 0, self.w, self.h, self.hdc, self.x, self.y, win32con.SRCCOPY)
+        # Restore original screen content first
+        ctypes.windll.gdi32.BitBlt(
+            self.hdc, self.x, self.y, self.w, self.h, 
+            self.original_dc, 0, 0, win32con.SRCCOPY
+        )
         
-        # Create and apply color overlay
-        color = RGB(random.randint(0,255), random.randint(0,255), random.randint(0,255))
+        # Create semi-transparent color overlay
+        color = RGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         brush = win32gui.CreateSolidBrush(color)
         old_brush = ctypes.windll.gdi32.SelectObject(overlay_dc, brush)
         
         # Fill overlay with color
         ctypes.windll.gdi32.PatBlt(overlay_dc, 0, 0, self.w, self.h, win32con.PATCOPY)
         
-        # Blend screen content with overlay
-        ctypes.windll.gdi32.BitBlt(self.hdc, self.x, self.y, self.w, self.h, screen_dc, 0, 0, win32con.SRCCOPY)
-        ctypes.windll.gdi32.BitBlt(self.hdc, self.x, self.y, self.w, self.h, overlay_dc, 0, 0, win32con.SRCPAINT)
+        # Apply overlay with alpha blending or fallback
+        try:
+            # Try to use AlphaBlend for proper transparency
+            blend_func = ctypes.Structure._fields_ = [
+                ('BlendOp', ctypes.c_ubyte),
+                ('BlendFlags', ctypes.c_ubyte),
+                ('SourceConstantAlpha', ctypes.c_ubyte),
+                ('AlphaFormat', ctypes.c_ubyte)
+            ]
+            
+            class BLENDFUNCTION(ctypes.Structure):
+                _fields_ = [
+                    ('BlendOp', ctypes.c_ubyte),
+                    ('BlendFlags', ctypes.c_ubyte),
+                    ('SourceConstantAlpha', ctypes.c_ubyte),
+                    ('AlphaFormat', ctypes.c_ubyte)
+                ]
+            
+            bf = BLENDFUNCTION()
+            bf.BlendOp = 0  # AC_SRC_OVER
+            bf.BlendFlags = 0
+            bf.SourceConstantAlpha = 60  # ~25% opacity
+            bf.AlphaFormat = 0
+            
+            # Apply alpha blend
+            result = ctypes.windll.msimg32.AlphaBlend(
+                self.hdc, self.x, self.y, self.w, self.h,
+                overlay_dc, 0, 0, self.w, self.h,
+                ctypes.cast(ctypes.pointer(bf), ctypes.c_ulong).value
+            )
+            
+            if not result:
+                raise Exception("AlphaBlend failed")
+                
+        except:
+            # Fallback to blend mode mixing for transparency effect
+            ctypes.windll.gdi32.SetROP2(self.hdc, win32con.R2_MERGEPEN)
+            ctypes.windll.gdi32.BitBlt(
+                self.hdc, self.x, self.y, self.w, self.h, 
+                overlay_dc, 0, 0, 0x00660046  # SRCINVERT with pattern
+            )
+            ctypes.windll.gdi32.SetROP2(self.hdc, win32con.R2_COPYPEN)
         
-        # Cleanup
+        # Cleanup overlay resources
         ctypes.windll.gdi32.SelectObject(overlay_dc, old_brush)
         ctypes.windll.gdi32.DeleteObject(brush)
-        ctypes.windll.gdi32.SelectObject(screen_dc, old_screen_bmp)
         ctypes.windll.gdi32.SelectObject(overlay_dc, old_overlay_bmp)
-        ctypes.windll.gdi32.DeleteObject(screen_bmp)
         ctypes.windll.gdi32.DeleteObject(overlay_bmp)
-        ctypes.windll.gdi32.DeleteDC(screen_dc)
         ctypes.windll.gdi32.DeleteDC(overlay_dc)
+    
+    def capture_original_screen(self):
+        """Capture the original screen content once to prevent stacking"""
+        self.original_dc = ctypes.windll.gdi32.CreateCompatibleDC(self.hdc)
+        self.original_bmp = ctypes.windll.gdi32.CreateCompatibleBitmap(self.hdc, self.w, self.h)
+        self.old_original_bmp = ctypes.windll.gdi32.SelectObject(self.original_dc, self.original_bmp)
+        
+        # Capture current screen state
+        ctypes.windll.gdi32.BitBlt(
+            self.original_dc, 0, 0, self.w, self.h, 
+            self.hdc, self.x, self.y, win32con.SRCCOPY
+        )
+    
+    def cleanup(self):
+        """Clean up resources when effect is done"""
+        if self.original_dc:
+            ctypes.windll.gdi32.SelectObject(self.original_dc, self.old_original_bmp)
+            ctypes.windll.gdi32.DeleteObject(self.original_bmp)
+            ctypes.windll.gdi32.DeleteDC(self.original_dc)
+            self.original_dc = None
+            self.original_bmp = None
+            self.initialized = False
 
 # =================== Effect Manager ===================
 class EffectManager:
     def __init__(self, hdc, memdc, x, y, w, h):
+        self.color_filter_effect = ColorFilterEffect(hdc, memdc, x, y, w, h)
         self.effects = [
             (TunnelInvertEffect(hdc, memdc, x, y, w, h), 9),
             (IconSpamEffect(hdc, memdc, x, y, w, h), 6),
             (IconTunnelInvertEffect(hdc, memdc, x, y, w, h), 7),
             (ColorEffect(hdc, memdc, x, y, w, h), 6),
-            (ColorFilterEffect(hdc, memdc, x, y, w, h), 5)
+            (self.color_filter_effect, 5)
         ]
         self.start_time = time.time()
         self.current_index = 0
@@ -274,10 +343,15 @@ class EffectManager:
         if self.switched_to_color_effect:
             return self.effects[0][0]
         if self.current_index >= len(self.effects):
+            # Clean up ColorFilterEffect before stopping
+            self.color_filter_effect.cleanup()
             # Signal to main loop to exit
             raise StopIteration
         current_effect, duration = self.effects[self.current_index]
         if duration is not None and time.time() - self.start_time > duration:
+            # Clean up ColorFilterEffect when switching away from it
+            if isinstance(current_effect, ColorFilterEffect):
+                current_effect.cleanup()
             self.current_index += 1
             self.start_time = time.time()
             return self.get_current_effect()
@@ -308,6 +382,16 @@ class EffectManager:
                 self.bytebeat8khz.start()
         effect.run()
 
+    def cleanup_all(self):
+        """Clean up all resources"""
+        self.color_filter_effect.cleanup()
+        if self.bytebeat8khz is not None and self.bytebeat8khz.is_alive():
+            self.bytebeat8khz.stop()
+            self.bytebeat8khz.join()
+        if self.bytebeat44khz is not None and self.bytebeat44khz.is_alive():
+            self.bytebeat44khz.stop()
+            self.bytebeat44khz.join()
+
 # =================== Main Loop ===================
 def main():
     # GDI setup
@@ -330,12 +414,7 @@ def main():
         pass
     finally:
         # Cleanup
-        if manager.bytebeat8khz is not None and manager.bytebeat8khz.is_alive():
-            manager.bytebeat8khz.stop()
-            manager.bytebeat8khz.join()
-        if manager.bytebeat44khz is not None and manager.bytebeat44khz.is_alive():
-            manager.bytebeat44khz.stop()
-            manager.bytebeat44khz.join()
+        manager.cleanup_all()
         ctypes.windll.gdi32.DeleteObject(bitmap)
         ctypes.windll.gdi32.DeleteDC(memdc)
         ctypes.windll.user32.ReleaseDC(0, hdc)
