@@ -165,6 +165,10 @@ class IconTunnelInvertEffect(BaseEffect):
 
 class ColorFilterEffect(BaseEffect):
     def run(self):
+        # Release and reacquire DC to prevent filter stacking
+        ctypes.windll.user32.ReleaseDC(0, self.hdc)
+        self.hdc = ctypes.windll.user32.GetDC(0)
+
         # Capture screen
         ctypes.windll.gdi32.BitBlt(self.memdc, 0, 0, self.w, self.h, self.hdc, self.x, self.y, win32con.SRCCOPY)
 
