@@ -240,7 +240,7 @@ class InvertRandColors(BaseEffect):
                 self.hdc, rx, ry,
                 win32con.NOTSRCCOPY
             )
-            
+
 # =================== Effect Manager ===================
 class EffectManager:
     def __init__(self, hdc, memdc, x, y, w, h):
@@ -274,7 +274,7 @@ class EffectManager:
     def run(self):
         effect = self.get_current_effect()
         # Only one bytebeat at a time
-        if isinstance(effect, ColorEffect) or isinstance(effect, ColorFilterEffect):
+        if isinstance(effect, ColorEffect) or isinstance(effect, InvertRandColors):
             # Stop 8kHz if running
             if self.bytebeat8khz is not None and self.bytebeat8khz.is_alive():
                 self.bytebeat8khz.stop()
