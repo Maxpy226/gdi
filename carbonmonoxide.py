@@ -219,33 +219,40 @@ class ColorEffect(BaseEffect):
 
 class ColorFilterEffect(BaseEffect):
     def run(self):
-        # Release and reacquire DC to prevent stacking
-        ctypes.windll.user32.ReleaseDC(0, self.hdc)
-        self.hdc = ctypes.windll.user32.GetDC(0)
-        
-        # Get fresh screen content
+        # Create a fresh DC for the screen content
         screen_dc = ctypes.windll.gdi32.CreateCompatibleDC(self.hdc)
         screen_bmp = ctypes.windll.gdi32.CreateCompatibleBitmap(self.hdc, self.w, self.h)
-        old_bmp = ctypes.windll.gdi32.SelectObject(screen_dc, screen_bmp)
+        old_screen_bmp = ctypes.windll.gdi32.SelectObject(screen_dc, screen_bmp)
+        
+        # Create another DC for the color overlay
+        overlay_dc = ctypes.windll.gdi32.CreateCompatibleDC(self.hdc)
+        overlay_bmp = ctypes.windll.gdi32.CreateCompatibleBitmap(self.hdc, self.w, self.h)
+        old_overlay_bmp = ctypes.windll.gdi32.SelectObject(overlay_dc, overlay_bmp)
         
         # Capture current screen
         ctypes.windll.gdi32.BitBlt(screen_dc, 0, 0, self.w, self.h, self.hdc, self.x, self.y, win32con.SRCCOPY)
         
-        # Apply color effect
+        # Create and apply color overlay
         color = RGB(random.randint(0,255), random.randint(0,255), random.randint(0,255))
         brush = win32gui.CreateSolidBrush(color)
+        old_brush = ctypes.windll.gdi32.SelectObject(overlay_dc, brush)
         
-        # Draw the effect
+        # Fill overlay with color
+        ctypes.windll.gdi32.PatBlt(overlay_dc, 0, 0, self.w, self.h, win32con.PATCOPY)
+        
+        # Blend screen content with overlay
         ctypes.windll.gdi32.BitBlt(self.hdc, self.x, self.y, self.w, self.h, screen_dc, 0, 0, win32con.SRCCOPY)
-        old_brush = ctypes.windll.gdi32.SelectObject(self.hdc, brush)
-        ctypes.windll.gdi32.PatBlt(self.hdc, self.x, self.y, self.w, self.h, win32con.PATINVERT)
+        ctypes.windll.gdi32.BitBlt(self.hdc, self.x, self.y, self.w, self.h, overlay_dc, 0, 0, win32con.SRCPAINT)
         
         # Cleanup
-        ctypes.windll.gdi32.SelectObject(self.hdc, old_brush)
+        ctypes.windll.gdi32.SelectObject(overlay_dc, old_brush)
         ctypes.windll.gdi32.DeleteObject(brush)
-        ctypes.windll.gdi32.SelectObject(screen_dc, old_bmp)
+        ctypes.windll.gdi32.SelectObject(screen_dc, old_screen_bmp)
+        ctypes.windll.gdi32.SelectObject(overlay_dc, old_overlay_bmp)
         ctypes.windll.gdi32.DeleteObject(screen_bmp)
+        ctypes.windll.gdi32.DeleteObject(overlay_bmp)
         ctypes.windll.gdi32.DeleteDC(screen_dc)
+        ctypes.windll.gdi32.DeleteDC(overlay_dc)
 
 # =================== Effect Manager ===================
 class EffectManager:
@@ -264,7 +271,6 @@ class EffectManager:
         self.switched_to_color_effect = False
 
     def get_current_effect(self):
-        # If we've switched, always return ColorEffect
         if self.switched_to_color_effect:
             return self.effects[0][0]
         if self.current_index >= len(self.effects):
