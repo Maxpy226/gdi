@@ -342,7 +342,7 @@ class EffectManager:
             (IconTunnelInvertEffect(hdc, memdc, x, y, w, h), 7),
             (ColorEffect(hdc, memdc, x, y, w, h), 6),
             (InvertRandColors(hdc, memdc, x, y, w, h), 7),
-            (MeltingScreenEffect(hdc, memdc, x, y, w, h), 5)
+            (MeltingScreenEffect(hdc, memdc, x, y, w, h), None)
 
         ]
         self.start_time = time.time()
