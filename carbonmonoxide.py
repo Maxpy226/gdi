@@ -256,84 +256,85 @@ class MeltingScreenEffect(BaseEffect):
         # Create melting effect by copying strips with vertical offsets
         strip_width = 4  # Width of each melting strip
         max_melt = 50   # Maximum pixels to melt down
-        
-        for strip_x in range(0, self.w, strip_width):
-            # Get or initialize melt position for this strip
-            if strip_x not in self.melt_positions:
-                self.melt_positions[strip_x] = 0
-            
-            # Randomly increase melt position
-            if random.randint(1, 20) == 1:  # 5% chance to melt more
-                self.melt_positions[strip_x] += random.randint(1, 5)
-            
-            # Cap the melt position
-            if self.melt_positions[strip_x] > max_melt:
-                self.melt_positions[strip_x] = max_melt
-            
-            melt_offset = self.melt_positions[strip_x]
-            
-            # Copy the strip with vertical offset (melting down)
-            actual_width = min(strip_width, self.w - strip_x)
-            
-            # Copy the melted strip
-            if melt_offset > 0:
-                ctypes.windll.gdi32.BitBlt(
-                    ctypes.c_void_p(self.hdc),
-                    ctypes.c_int(self.x + strip_x),
-                    ctypes.c_int(self.y + melt_offset),
-                    ctypes.c_int(actual_width),
-                    ctypes.c_int(self.h - melt_offset),
-                    ctypes.c_void_p(self.memdc),
-                    ctypes.c_int(strip_x),
-                    ctypes.c_int(0),
-                    ctypes.c_uint(win32con.SRCCOPY)
-                )
+        try:
+            for strip_x in range(0, self.w, strip_width):
+                # Get or initialize melt position for this strip
+                if strip_x not in self.melt_positions:
+                    self.melt_positions[strip_x] = 0
+                
+                # Randomly increase melt position
+                if random.randint(1, 20) == 1:  # 5% chance to melt more
+                    self.melt_positions[strip_x] += random.randint(1, 5)
+                
+                # Cap the melt position
+                if self.melt_positions[strip_x] > max_melt:
+                    self.melt_positions[strip_x] = max_melt
+                
+                melt_offset = self.melt_positions[strip_x]
+                
+                # Copy the strip with vertical offset (melting down)
+                actual_width = min(strip_width, self.w - strip_x)
+                
+                # Copy the melted strip
+                if melt_offset > 0:
+                    ctypes.windll.gdi32.BitBlt(
+                        ctypes.c_void_p(self.hdc),
+                        ctypes.c_int(self.x + strip_x),
+                        ctypes.c_int(self.y + melt_offset),
+                        ctypes.c_int(actual_width),
+                        ctypes.c_int(self.h - melt_offset),
+                        ctypes.c_void_p(self.memdc),
+                        ctypes.c_int(strip_x),
+                        ctypes.c_int(0),
+                        ctypes.c_uint(win32con.SRCCOPY)
+                    )
 
-                
-                # Fill the top area with background color or black
-                black_brush = ctypes.windll.gdi32.GetStockObject(win32con.BLACK_BRUSH)
-                old_brush = ctypes.windll.gdi32.SelectObject(self.hdc, black_brush)
-                
-                # Fill the gap at the top
-                ctypes.windll.gdi32.PatBlt(
-                    ctypes.c_void_p(self.hdc),
-                    ctypes.c_int(self.x + strip_x),
-                    ctypes.c_int(self.y),
-                    ctypes.c_int(actual_width),
-                    ctypes.c_int(melt_offset),
-                    ctypes.c_uint(win32con.PATCOPY)
-                )
+                    
+                    # Fill the top area with background color or black
+                    black_brush = ctypes.windll.gdi32.GetStockObject(win32con.BLACK_BRUSH)
+                    old_brush = ctypes.windll.gdi32.SelectObject(self.hdc, black_brush)
+                    
+                    # Fill the gap at the top
+                    ctypes.windll.gdi32.PatBlt(
+                        ctypes.c_void_p(self.hdc),
+                        ctypes.c_int(self.x + strip_x),
+                        ctypes.c_int(self.y),
+                        ctypes.c_int(actual_width),
+                        ctypes.c_int(melt_offset),
+                        ctypes.c_uint(win32con.PATCOPY)
+                    )
 
+                    
+                    ctypes.windll.gdi32.SelectObject(self.hdc, old_brush)
                 
-                ctypes.windll.gdi32.SelectObject(self.hdc, old_brush)
+                # Add some dripping effect with random pixels
+                if melt_offset > 10 and random.randint(1, 30) == 1:
+                    drip_color = RGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                    drip_brush = win32gui.CreateSolidBrush(drip_color)
+                    old_brush = ctypes.windll.gdi32.SelectObject(self.hdc, drip_brush)
+                    
+                    # Create small drip
+                    drip_x = strip_x + random.randint(0, actual_width - 1)
+                    drip_y = melt_offset + random.randint(0, 20)
+                    
+                    ctypes.windll.gdi32.PatBlt(
+                        self.hdc,
+                        self.x + drip_x,
+                        self.y + drip_y,
+                        2,  # small drip width
+                        random.randint(3, 8),  # variable drip height
+                        win32con.PATCOPY
+                    )
+                    
+                    ctypes.windll.gdi32.SelectObject(self.hdc, old_brush)
+                    ctypes.windll.gdi32.DeleteObject(drip_brush)
             
-            # Add some dripping effect with random pixels
-            if melt_offset > 10 and random.randint(1, 30) == 1:
-                drip_color = RGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                drip_brush = win32gui.CreateSolidBrush(drip_color)
-                old_brush = ctypes.windll.gdi32.SelectObject(self.hdc, drip_brush)
-                
-                # Create small drip
-                drip_x = strip_x + random.randint(0, actual_width - 1)
-                drip_y = melt_offset + random.randint(0, 20)
-                
-                ctypes.windll.gdi32.PatBlt(
-                    self.hdc,
-                    self.x + drip_x,
-                    self.y + drip_y,
-                    2,  # small drip width
-                    random.randint(3, 8),  # variable drip height
-                    win32con.PATCOPY
-                )
-                
-                ctypes.windll.gdi32.SelectObject(self.hdc, old_brush)
-                ctypes.windll.gdi32.DeleteObject(drip_brush)
-        
-        # Occasionally reset some strips to create flowing effect
-        if random.randint(1, 100) == 1:
-            reset_strip = random.choice(list(self.melt_positions.keys())) if self.melt_positions else 0
-            self.melt_positions[reset_strip] = max(0, self.melt_positions.get(reset_strip, 0) - 10)
-        
+            # Occasionally reset some strips to create flowing effect
+            if random.randint(1, 100) == 1:
+                reset_strip = random.choice(list(self.melt_positions.keys())) if self.melt_positions else 0
+                self.melt_positions[reset_strip] = max(0, self.melt_positions.get(reset_strip, 0) - 10)
+        except:
+            pass
 
 # =================== Effect Manager ===================
 class EffectManager:
