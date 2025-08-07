@@ -249,22 +249,34 @@ class RadialBlurEffect(BaseEffect):
         # Capture screen
         ctypes.windll.gdi32.BitBlt(self.memdc, 0, 0, self.w, self.h, self.hdc, self.x, self.y, win32con.SRCCOPY)
 
-        # Radial blur effect
-        for i in range(10):
-            offset = i * 10
-            # Create a radial blur effect by stretching the bitmap
-            ctypes.windll.gdi32.StretchBlt(
-                self.hdc, 
-                self.x + offset, 
-                self.y + offset, 
-                self.w - 2 * offset, 
-                self.h - 2 * offset,
-                self.memdc, 
-                0, 
-                0, 
-                self.w, 
-                self.h,
-                win32con.SRCCOPY
+        # Radial blur simulation: draw concentric circles with alpha blending
+        # Requires AlphaBlend from msimg32.dll
+        msimg32 = ctypes.windll.LoadLibrary("msimg32.dll")
+        AlphaBlend = msimg32.AlphaBlend
+
+        blend_func = ctypes.c_buffer(b'\x00\x00\x00\x00\x80\x00\x00\x00')  # AC_SRC_OVER, 128 alpha
+
+        center_x = self.x + self.w // 2
+        center_y = self.y + self.h // 2
+        max_radius = min(self.w, self.h) // 2
+
+        for r in range(max_radius, 0, -20):
+            left = center_x - r
+            top = center_y - r
+            diameter = r * 2
+            # AlphaBlend: (hdcDest, xDest, yDest, wDest, hDest, hdcSrc, xSrc, ySrc, wSrc, hSrc, blendFunc)
+            AlphaBlend(
+                self.hdc,
+                left,
+                top,
+                diameter,
+                diameter,
+                self.memdc,
+                left,
+                top,
+                diameter,
+                diameter,
+                blend_func
             )
 
 # =================== Effect Manager ===================
