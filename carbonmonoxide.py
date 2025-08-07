@@ -218,28 +218,31 @@ class ColorEffect(BaseEffect):
         ctypes.windll.gdi32.DeleteObject(int(brush))
 
 class InvertRandColors(BaseEffect):
+    def __init__(self, hdc, memdc, x, y, w, h):
+        super().__init__(hdc, memdc, x, y, w, h)
+        self.colors = [0xFF0000, 0xFF00BC, 0x00FF33, 0xFFF700, 0x00FFEF]
+
     def run(self):
-        # Create random rectangles with color inversions
-        for _ in range(10):
-            # Random position and size
-            rx = random.randint(self.x, self.x + self.w - 100)
-            ry = random.randint(self.y, self.y + self.h - 100)
-            rw = random.randint(50, 200)
-            rh = random.randint(50, 200)
-            
-            # Capture that portion of screen
-            ctypes.windll.gdi32.BitBlt(
-                self.memdc, 0, 0, rw, rh,
-                self.hdc, rx, ry,
-                win32con.SRCCOPY
-            )
-            
-            # Invert just that portion
-            ctypes.windll.gdi32.BitBlt(
-                self.hdc, rx, ry, rw, rh,
-                self.hdc, rx, ry,
-                win32con.NOTSRCCOPY
-            )
+        # Create brush with random color from predefined list
+        color = random.choice(self.colors)
+        brush = win32gui.CreateSolidBrush(color)
+        old_brush = ctypes.windll.gdi32.SelectObject(int(self.hdc), int(brush))
+
+        # Fill entire screen with color using PATINVERT
+        ctypes.windll.gdi32.PatBlt(
+            int(self.hdc),
+            int(self.x), 
+            int(self.y),
+            int(self.w),
+            int(self.h),
+            win32con.PATINVERT
+        )
+
+        # Cleanup
+        ctypes.windll.gdi32.SelectObject(int(self.hdc), int(old_brush))
+        ctypes.windll.gdi32.DeleteObject(int(brush))
+        
+        time.sleep(0.05) # Short delay between color changes
 
 # =================== Effect Manager ===================
 class EffectManager:
