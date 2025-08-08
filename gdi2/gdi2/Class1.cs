@@ -773,22 +773,18 @@ namespace gdi2
 
             System.Drawing.Point startPos;
             GetCursorPos(out startPos);
-            
 
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
                 IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
-
                 // Now you can directly use the integer values
                 IntPtr rndicondraw = LoadIcon(IntPtr.Zero, new IntPtr(rndicons[r.Next(rndicons.Length)]));
-
                 IntPtr mhdc = CreateCompatibleDC(hdc);
                 IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
                 IntPtr holdbit = SelectObject(mhdc, hbit);
-                Point mousePos;
-                GetCursorPos(out mousePos);
+
                 int randsec = r.Next(x);
                 BitBlt(hdc, randsec, r.Next(-8, 8), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
                 SelectObject(hdc, brush);
@@ -797,14 +793,17 @@ namespace gdi2
                 // Randomly offset the cursor position
                 int offsetX = r.Next(-30, 30);
                 int offsetY = r.Next(-30, 30);
-
                 SetCursorPos(startPos.X + offsetX, startPos.Y + offsetY);
-                
-                
 
-                SetCursorPos(startPos.X, startPos.Y); // Return home
-                // Draw error icon at mouse position
+                // Get the NEW cursor position after moving it
+                Point mousePos;
+                GetCursorPos(out mousePos);
+
+                // Draw error icon at the NEW mouse position
                 DrawIcon(hdc, mousePos.X - 16, mousePos.Y - 16, rndicondraw);
+
+                // Don't return home immediately - let it stay at the new position
+                // SetCursorPos(startPos.X, startPos.Y); // Remove this line
 
                 // Fixed cleanup order
                 SelectObject(mhdc, holdbit);
@@ -812,10 +811,8 @@ namespace gdi2
                 DeleteDC(mhdc);
                 DeleteObject(brush);
                 ReleaseDC(IntPtr.Zero, hdc);
-
                 Thread.Sleep(20);
             }
-
 
         }
     }
