@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
+using System.Drawing;
 using NAudio.Wave;
 
 namespace gdi2
@@ -173,6 +174,15 @@ namespace gdi2
 
         [DllImport("user32.dll")]
         static extern bool UpdateWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        static extern bool GetCursorPos(out Point lpPoint);
+
+        [DllImport("user32.dll")]
+        static extern IntPtr LoadIcon(IntPtr hInstance, IntPtr lpIconName);
+
+        [DllImport("user32.dll")]
+        static extern bool DrawIcon(IntPtr hdc, int X, int Y, IntPtr hIcon);
 
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
@@ -726,8 +736,10 @@ namespace gdi2
             DeleteObject(hBitmap);
             DeleteDC(hdcMem);
             ReleaseDC(IntPtr.Zero, hdcDesktop);
+
+
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            var duration = 10000; // 5 seconds in milliseconds
+            var duration = 20000; 
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
@@ -742,6 +754,33 @@ namespace gdi2
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
                 DeleteObject(brush);
                 DeleteDC(hdc);
+            }
+            stopwatch.Restart();
+
+
+            // Icon constants
+            const int IDI_ERROR = 32513;
+            const int IDI_HAND = 32513;    // Same as IDI_ERROR
+            const int IDI_WARNING = 32515;
+            const int IDI_QUESTION = 32514;
+
+            IntPtr errorIcon = LoadIcon(IntPtr.Zero, new IntPtr(IDI_ERROR));
+
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                // Get current mouse position
+                Point mousePos;
+                GetCursorPos(out mousePos);
+
+                // Get desktop DC
+                IntPtr hdc = GetDC(IntPtr.Zero);
+
+                // Draw error icon at mouse position
+                DrawIcon(hdc, mousePos.X - 16, mousePos.Y - 16, errorIcon); // Offset by 16 to center
+
+                ReleaseDC(IntPtr.Zero, hdc);
+
+                Thread.Sleep(50); // Adjust for smoothness
             }
 
 
