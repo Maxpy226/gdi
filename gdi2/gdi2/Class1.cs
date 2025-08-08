@@ -682,13 +682,17 @@ namespace gdi2
 
             uint[] rndclr = { 0x2AFA00, 0xFA0000, 0xFA00D4, 0x0057FA };
 
-            var provider = new BytebeatWaveProvider();
+            BytebeatWaveProvider bytebeat = new BytebeatWaveProvider(44100);
+            bytebeat.freq = 8000; // optional, your frequency
 
-            // Create WaveOutEvent and initialize
-            var waveOut = new WaveOutEvent();
-            waveOut.Init(provider);
+            // Create playback device
+            WaveOutEvent waveOut = new WaveOutEvent();
+
+            // Initialize playback with bytebeat source
+            waveOut.Init(bytebeat);
+
+            // Start playback
             waveOut.Play();
-
 
 
             while (true)
