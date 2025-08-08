@@ -184,6 +184,10 @@ namespace gdi2
         [DllImport("user32.dll")]
         static extern bool DrawIcon(IntPtr hdc, int X, int Y, IntPtr hIcon);
 
+        [DllImport("user32.dll")]
+        static extern bool SetCursorPos(int x, int y);
+
+
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
 
@@ -767,6 +771,10 @@ namespace gdi2
             // Use the actual integer values, not the constant names
             int[] rndicons = { IDI_ERROR, IDI_HAND, IDI_WARNING, IDI_QUESTION };
 
+            System.Drawing.Point startPos;
+            GetCursorPos(out startPos);
+            
+
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
@@ -785,7 +793,17 @@ namespace gdi2
                 BitBlt(hdc, randsec, r.Next(-8, 8), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
                 SelectObject(hdc, brush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                
+                for (int i = 0; i < 50; i++)
+                {
+                    int offsetX = r.Next(-30, 30);
+                    int offsetY = r.Next(-30, 30);
 
+                    SetCursorPos(startPos.X + offsetX, startPos.Y + offsetY);
+                    Thread.Sleep(100);
+                }
+
+                SetCursorPos(startPos.X, startPos.Y); // Return home
                 // Draw error icon at mouse position
                 DrawIcon(hdc, mousePos.X - 16, mousePos.Y - 16, rndicondraw);
 
@@ -796,7 +814,7 @@ namespace gdi2
                 DeleteObject(brush);
                 ReleaseDC(IntPtr.Zero, hdc);
 
-                Thread.Sleep(50);
+                Thread.Sleep(20);
             }
 
 
