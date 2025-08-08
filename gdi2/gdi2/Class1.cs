@@ -682,7 +682,7 @@ namespace gdi2
             waveOut.Play();
 
 
-            while (true)
+            for (int i = 0; i < 100; i++)
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
@@ -702,7 +702,18 @@ namespace gdi2
                 DeleteObject(brush);
                 DeleteDC(hdc);
                 Thread.Sleep(20);
-
+            }
+            for (int i = 0; i < 100; i++)
+            {
+                r = new Random();
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
+                IntPtr mhdc = CreateCompatibleDC(hdc);
+                IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
+                IntPtr holdbit = SelectObject(mhdc, hbit);
+                int randsec = r.Next(x);
+                BitBlt(hdc, randsec, r.Next(-4, 4), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
+                DeleteDC(hdc);
             }
 
 
