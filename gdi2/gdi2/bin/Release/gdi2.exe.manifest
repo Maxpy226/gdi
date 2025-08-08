@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="gdi2.exe" size="302040">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="gdi2.exe" size="302552">
       <assemblyIdentity name="gdi2" version="0.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>Rm7P15Ep+xBxREyc8eFxSXzZB/WdSfQ8AokENpLAvHk=</dsig:DigestValue>
+        <dsig:DigestValue>DUm/LMlA4r3ZJKPgMWoNV5XmbT3y5IFam8Q46A5Zbvw=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

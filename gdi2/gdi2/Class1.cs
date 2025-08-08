@@ -686,6 +686,16 @@ namespace gdi2
             waveOut.Init(waveProvider);
             waveOut.Play();
 
+            IntPtr hdcDesktop = GetDC(IntPtr.Zero);
+            IntPtr hdcMem = CreateCompatibleDC(hdcDesktop);
+            int width = right - left;
+            int height = bottom - top;
+            IntPtr hBitmap = CreateCompatibleBitmap(hdcDesktop, width, height);
+            IntPtr oldBitmap = SelectObject(hdcMem, hBitmap);
+
+            // Copy desktop area into hBitmap
+            BitBlt(hdcMem, 0, 0, width, height, hdcDesktop, left, top, TernaryRasterOperations.SRCCOPY);
+
 
             for (int i = 0; i < 50; i++)
             {
@@ -709,7 +719,13 @@ namespace gdi2
 
             }
 
-           
+            BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
+
+            // Clean up
+            SelectObject(hdcMem, oldBitmap);
+            DeleteObject(hBitmap);
+            DeleteDC(hdcMem);
+            ReleaseDC(IntPtr.Zero, hdcDesktop);
 
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             var duration = 10000; // 5 seconds in milliseconds
