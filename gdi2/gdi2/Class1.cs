@@ -768,16 +768,22 @@ namespace gdi2
 
             while (stopwatch.ElapsedMilliseconds < duration)
             {
-                // Get current mouse position
+                r = new Random();
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
+                IntPtr mhdc = CreateCompatibleDC(hdc);
+                IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
+                IntPtr holdbit = SelectObject(mhdc, hbit);
                 Point mousePos;
                 GetCursorPos(out mousePos);
-
-                // Get desktop DC
-                IntPtr hdc = GetDC(IntPtr.Zero);
-
+                int randsec = r.Next(x);
+                BitBlt(hdc, randsec, r.Next(-8, 8), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
+                SelectObject(hdc, brush);
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                DeleteObject(brush);
+                DeleteDC(hdc);
                 // Draw error icon at mouse position
                 DrawIcon(hdc, mousePos.X - 16, mousePos.Y - 16, errorIcon); // Offset by 16 to center
-
                 ReleaseDC(IntPtr.Zero, hdc);
 
                 Thread.Sleep(50); // Adjust for smoothness
