@@ -793,15 +793,14 @@ namespace gdi2
                 BitBlt(hdc, randsec, r.Next(-8, 8), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
                 SelectObject(hdc, brush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
-                
-                for (int i = 0; i < 50; i++)
-                {
-                    int offsetX = r.Next(-30, 30);
-                    int offsetY = r.Next(-30, 30);
 
-                    SetCursorPos(startPos.X + offsetX, startPos.Y + offsetY);
-                    Thread.Sleep(100);
-                }
+                // Randomly offset the cursor position
+                int offsetX = r.Next(-30, 30);
+                int offsetY = r.Next(-30, 30);
+
+                SetCursorPos(startPos.X + offsetX, startPos.Y + offsetY);
+                
+                
 
                 SetCursorPos(startPos.X, startPos.Y); // Return home
                 // Draw error icon at mouse position
