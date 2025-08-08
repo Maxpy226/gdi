@@ -651,7 +651,7 @@ namespace gdi2
                 {
                     // Bytebeat formula example:
                     // This one generates some cool sound using t
-                    byte sample = (byte)((t * (t >> 5 | t >> 8)) >> (t >> 16));
+                    byte sample = (byte)(((t % 262144 < 131072) ? (((t / 64) >> 3 & t * 2 & t * 10) | (t >> 5 & t * 6) & (t >> 4 | t >> 5)) : (t % 262144 > 131072 & t % 262144 < 163840) ? (t >> 4 & t * 8) & (t >> 5 | t >> 4) | (t * 3 & t * 10) : (t % 262144 > 163840 & t % 262144 < 196608) ? (t >> 4 & t * 8) & (t >> 5 | t >> 4) | (t * 3 & t * 6) : (t % 262144 > 196608 & t % 262144 < 229376) ? (t >> 4 & t * 8) & (t >> 5 | t >> 4) | (t * 4 & t * 6) : (t % 262144 > 229376 & t % 262144 < 245760) ? (t >> 4 & t * 8) & (t >> 5 | t >> 4) | (t * 4 & t * 2) : (t >> 4 & t * 8) & (t >> 4) | (t * 4 & t * 2) >> 20));
 
                     // Convert byte sample (0-255) to 16-bit PCM sample (-32768 to 32767)
                     short val = (short)((sample - 128) << 8);
