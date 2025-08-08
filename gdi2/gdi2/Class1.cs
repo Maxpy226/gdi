@@ -679,7 +679,7 @@ namespace gdi2
             // Create WaveOutEvent and initialize
             var waveOut = new WaveOutEvent();
             waveOut.Init(provider);
-            waveOut.Play();
+            //waveOut.Play();
 
 
 
