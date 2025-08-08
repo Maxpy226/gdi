@@ -645,7 +645,7 @@ namespace gdi2
         {
             private int t = 0;
 
-            public BytebeatWaveProvider(int sampleRate = 44100)
+            public BytebeatWaveProvider(int sampleRate = 8000)
             {
                 SetWaveFormat(sampleRate, 16);
             }
