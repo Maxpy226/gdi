@@ -643,13 +643,20 @@ namespace gdi2
         public static void Main()
         {
             SetProcessDPIAware();
-            IntPtr hdc = GetDC(IntPtr.Zero);
-            int width = GetDeviceCaps(hdc, 8); // HORZRES
-            int height = GetDeviceCaps(hdc, 10); // VERTRES
+            int x = Screen.PrimaryScreen.Bounds.Width;
+            int y = Screen.PrimaryScreen.Bounds.Height;
 
-            Console.WriteLine($"Screen Width: {width}, Height: {height}");
-            Console.WriteLine("Press any key to exit...");
-            Console.ReadKey();
+            while (true)
+            {
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr Brush = CreateSolidBrush(0xF0FFFF); // Green color
+                SelectObject(hdc, Brush);
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                DeleteObject(Brush);
+                DeleteDC(hdc);
+                Thread.Sleep(1000); // Sleep for 1 second
+            }
+
 
         }
     }

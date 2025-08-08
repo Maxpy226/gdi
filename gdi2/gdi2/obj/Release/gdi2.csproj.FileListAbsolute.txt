@@ -1,0 +1,11 @@
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\gdi2.exe.config
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\gdi2.exe.manifest
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\gdi2.application
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\gdi2.exe
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\gdi2.pdb
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.csproj.AssemblyReference.cache
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.csproj.CoreCompileInputs.cache
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.exe.manifest
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.application
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.exe
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.pdb
