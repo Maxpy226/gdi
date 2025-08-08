@@ -701,7 +701,7 @@ namespace gdi2
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
                 DeleteObject(brush);
                 DeleteDC(hdc);
-                ReleaseDC(IntPtr.Zero, mhdc);
+                ReleaseDC(IntPtr.Zero, hdc);
                 Thread.Sleep(20);
             }
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -717,7 +717,6 @@ namespace gdi2
                 int randsec = r.Next(x);
                 BitBlt(hdc, randsec, r.Next(-4, 4), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
                 DeleteDC(hdc);
-                ReleaseDC(IntPtr.Zero, mhdc);
             }
 
 
