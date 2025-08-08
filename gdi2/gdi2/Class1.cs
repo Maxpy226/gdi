@@ -703,7 +703,7 @@ namespace gdi2
                 DeleteDC(hdc);
                 Thread.Sleep(20);
             }
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 1000000; i++)
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
@@ -714,7 +714,6 @@ namespace gdi2
                 int randsec = r.Next(x);
                 BitBlt(hdc, randsec, r.Next(-4, 4), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
                 DeleteDC(hdc);
-                Thread.Sleep(20);
             }
 
 
