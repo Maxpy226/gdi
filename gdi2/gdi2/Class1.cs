@@ -171,7 +171,12 @@ namespace gdi2
         [DllImport("user32.dll")]
         static extern bool SetProcessDPIAware();
 
+        [DllImport("user32.dll")]
+        static extern bool UpdateWindow(IntPtr hWnd);
+
+
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+
         public struct RAMP
         {
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
@@ -703,7 +708,12 @@ namespace gdi2
                 DeleteDC(hdc);               
                 Thread.Sleep(20);
             }
+
+            IntPtr desktop = GetDC(IntPtr.Zero);
             InvalidateRect(IntPtr.Zero, IntPtr.Zero, true);
+            UpdateWindow(GetDesktopWindow());
+            ReleaseDC(IntPtr.Zero, desktop);
+
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             var duration = 10000; // 5 seconds in milliseconds
             while (stopwatch.ElapsedMilliseconds < duration)
