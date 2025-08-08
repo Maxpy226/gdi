@@ -642,14 +642,17 @@ namespace gdi2
 
         public static void Main()
         {
+            Random r;
             SetProcessDPIAware();
             int x = Screen.PrimaryScreen.Bounds.Width;
             int y = Screen.PrimaryScreen.Bounds.Height;
-
+            uint[] rndclr = { 0x2AFA00, 0xFA0000, 0xFA00D4, 0x0057FA }; 
+            
             while (true)
             {
+                r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
-                IntPtr Brush = CreateSolidBrush(0xF0FFFF); // Green color
+                IntPtr Brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]); 
                 SelectObject(hdc, Brush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
                 DeleteObject(Brush);
