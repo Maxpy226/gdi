@@ -686,7 +686,7 @@ namespace gdi2
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
-                IntPtr brush = CreateSolidBrush(rndclr[r.Next(0, rndclr.Length)]);
+                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
                 IntPtr mhdc = CreateCompatibleDC(hdc);
                 IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
                 IntPtr holdbit = SelectObject(mhdc, hbit);
