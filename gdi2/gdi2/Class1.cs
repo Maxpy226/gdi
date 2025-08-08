@@ -691,11 +691,11 @@ namespace gdi2
                 IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
                 IntPtr holdbit = SelectObject(mhdc, hbit);
                 lppoint[0].X = (left + 50) + 0;
-                lppoint[0].X = (top - 50) + 0;
+                lppoint[0].Y = (top - 50) + 0;
                 lppoint[1].X = (right + 50) + 0;
-                lppoint[1].X = (top + 50) + 0;
+                lppoint[1].Y = (top + 50) + 0;
                 lppoint[2].X = (left - 50) + 0;
-                lppoint[2].X = (bottom - 50) + 0;
+                lppoint[2].Y = (bottom - 50) + 0;
                 PlgBlt(hdc, lppoint, hdc, left - 20, top - 20, (right - left) + 40, (bottom - top) + 40, IntPtr.Zero, 0, 0);
                 DeleteDC(hdc);
                 Thread.Sleep(50);
