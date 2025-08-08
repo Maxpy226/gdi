@@ -705,14 +705,13 @@ namespace gdi2
                 SelectObject(hdc, brush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
                 DeleteObject(brush);
-                DeleteDC(hdc);               
-                Thread.Sleep(20);
+                SelectObject(mhdc, holdbit);  // Restore original bitmap
+                DeleteObject(hbit);           // Delete the bitmap
+                DeleteDC(mhdc);               // Delete compatible DC
+                ReleaseDC(IntPtr.Zero, hdc);  // Release desktop DC
             }
 
-            IntPtr desktop = GetDC(IntPtr.Zero);
-            InvalidateRect(IntPtr.Zero, IntPtr.Zero, true);
-            UpdateWindow(GetDesktopWindow());
-            ReleaseDC(IntPtr.Zero, desktop);
+
 
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             var duration = 10000; // 5 seconds in milliseconds
