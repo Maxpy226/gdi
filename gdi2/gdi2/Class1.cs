@@ -700,10 +700,10 @@ namespace gdi2
                 SelectObject(hdc, brush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
                 DeleteObject(brush);
-                DeleteDC(hdc);
-                ReleaseDC(IntPtr.Zero, hdc);
+                DeleteDC(hdc);               
                 Thread.Sleep(20);
             }
+            InvalidateRect(IntPtr.Zero, IntPtr.Zero, true);
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             var duration = 10000; // 5 seconds in milliseconds
             while (stopwatch.ElapsedMilliseconds < duration)
