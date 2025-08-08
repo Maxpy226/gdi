@@ -703,7 +703,10 @@ namespace gdi2
                 DeleteDC(hdc);
                 Thread.Sleep(20);
             }
-            for (int i = 0; i < 1000000; i++)
+            ReleaseDC(IntPtr.Zero, GetDC(IntPtr.Zero));
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            var duration = 10000; // 5 seconds in milliseconds
+            while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
