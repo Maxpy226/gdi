@@ -9,16 +9,6 @@ C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.exe.manifest
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.application
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.exe
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.pdb
-C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\Microsoft.Win32.Registry.dll
-C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\NAudio.Asio.dll
-C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\NAudio.Core.dll
-C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\NAudio.dll
-C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\NAudio.Midi.dll
-C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\NAudio.Wasapi.dll
-C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\NAudio.WinForms.dll
-C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\NAudio.WinMM.dll
-C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\System.Security.AccessControl.dll
-C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\System.Security.Principal.Windows.dll
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\Microsoft.Win32.Registry.xml
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\NAudio.xml
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\NAudio.Asio.xml
@@ -31,3 +21,5 @@ C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\System.Security.AccessCont
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\System.Security.Principal.Windows.xml
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.exe.config
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.csproj.Up2Date
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.csproj.Fody.CopyLocal.cache
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.csproj.Fody.RuntimeCopyLocal.cache
