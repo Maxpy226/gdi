@@ -652,12 +652,20 @@ namespace gdi2
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
-                IntPtr Brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]); 
-                SelectObject(hdc, Brush);
-                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
-                DeleteObject(Brush);
+                IntPtr mhdc = CreateCompatibleDC(hdc);
+                IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
+                IntPtr holdbit = SelectObject(mhdc, hbit);
+
+                BitBlt(mhdc, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
+                AlphaBlend(hdc, r.Next(-4, 4), r.Next(-4, 4), x, y, mhdc, 0, 0, x, y, new BLENDFUNCTION(0, 0, 70, 0));
+
+                SelectObject(mhdc, holdbit);
+                DeleteObject(holdbit);
+                DeleteObject(hbit);
+                DeleteDC(mhdc);
                 DeleteDC(hdc);
-                Thread.Sleep(100); // Sleep for 1 second
+                Thread.Sleep(50);
+
             }
 
 
