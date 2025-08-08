@@ -27,3 +27,7 @@ C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Debug\NAudio.WinMM.xml
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Debug\System.Security.AccessControl.xml
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Debug\System.Security.Principal.Windows.xml
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Debug\gdi2.csproj.Up2Date
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Debug\gdi2.exe.manifest
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Debug\gdi2.application
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Debug\gdi2.exe.manifest
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Debug\gdi2.application

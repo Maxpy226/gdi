@@ -697,7 +697,7 @@ namespace gdi2
                 DeleteDC(mhdc);
                 DeleteDC(hdc);
                 Thread.Sleep(50);
-                
+
             }
 
 
