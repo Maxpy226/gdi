@@ -726,14 +726,13 @@ namespace gdi2
             DeleteObject(hBitmap);
             DeleteDC(hdcMem);
             ReleaseDC(IntPtr.Zero, hdcDesktop);
-            uint[] rndclr2 = { 0xFFFFFF, 0x000000 };
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             var duration = 10000; // 5 seconds in milliseconds
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
-                IntPtr brush = CreateSolidBrush(rndclr2[r.Next(rndclr2.Length)]);
+                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
                 IntPtr mhdc = CreateCompatibleDC(hdc);
                 IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
                 IntPtr holdbit = SelectObject(mhdc, hbit);
