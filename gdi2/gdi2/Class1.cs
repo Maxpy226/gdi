@@ -737,7 +737,7 @@ namespace gdi2
                 IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
                 IntPtr holdbit = SelectObject(mhdc, hbit);
                 int randsec = r.Next(x);
-                BitBlt(hdc, randsec, r.Next(-4, 4), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
+                BitBlt(hdc, randsec, r.Next(-8, 8), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
                 SelectObject(hdc, brush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
                 DeleteObject(brush);
