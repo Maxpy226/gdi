@@ -669,6 +669,9 @@ namespace gdi2
             SetProcessDPIAware();
             int x = Screen.PrimaryScreen.Bounds.Width;
             int y = Screen.PrimaryScreen.Bounds.Height;
+            int left = Screen.PrimaryScreen.Bounds.Left, top = Screen.PrimaryScreen.Bounds.Top, right = Screen.PrimaryScreen.Bounds.Right, bottom = Screen.PrimaryScreen.Bounds.Bottom;
+            POINT[] lppoint = new POINT[3];
+
             uint[] rndclr = { 0x2AFA00, 0xFA0000, 0xFA00D4, 0x0057FA };
 
             var provider = new BytebeatWaveProvider();
@@ -687,14 +690,13 @@ namespace gdi2
                 IntPtr mhdc = CreateCompatibleDC(hdc);
                 IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
                 IntPtr holdbit = SelectObject(mhdc, hbit);
-
-                BitBlt(mhdc, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
-                AlphaBlend(hdc, r.Next(-4, 4), r.Next(-4, 4), x, y, mhdc, 0, 0, x, y, new BLENDFUNCTION(0, 0, 70, 0));
-
-                SelectObject(mhdc, holdbit);
-                DeleteObject(holdbit);
-                DeleteObject(hbit);
-                DeleteDC(mhdc);
+                lppoint[0].X = (left + 50) + 0;
+                lppoint[0].X = (top - 50) + 0;
+                lppoint[1].X = (right + 50) + 0;
+                lppoint[1].X = (top + 50) + 0;
+                lppoint[2].X = (left - 50) + 0;
+                lppoint[2].X = (bottom - 50) + 0;
+                PlgBlt(hdc, lppoint, hdc, left - 20, top - 20, (right - left) + 40, (bottom - top) + 40, IntPtr.Zero, 0, 0);
                 DeleteDC(hdc);
                 Thread.Sleep(50);
 
