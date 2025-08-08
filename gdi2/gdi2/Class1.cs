@@ -679,7 +679,7 @@ namespace gdi2
             // Create WaveOutEvent and initialize
             var waveOut = new WaveOutEvent();
             waveOut.Init(provider);
-            //waveOut.Play();
+            waveOut.Play();
 
 
 
@@ -698,7 +698,7 @@ namespace gdi2
                 lppoint[2].Y = (bottom - 50) + 0;
                 PlgBlt(hdc, lppoint, hdc, left - 20, top - 20, (right - left) + 40, (bottom - top) + 40, IntPtr.Zero, 0, 0);
                 DeleteDC(hdc);
-                Thread.Sleep(50);
+                Thread.Sleep(20);
 
             }
 
