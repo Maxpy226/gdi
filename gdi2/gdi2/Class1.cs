@@ -643,25 +643,33 @@ namespace gdi2
 
         class BytebeatWaveProvider : WaveProvider16
         {
-            private int t = 0;
+            private double t = 0;
+            private readonly int sampleRate;
+            public double freq = 440.0;  // Frequency in Hz, default to A4 note
+
+            public BytebeatWaveProvider(int sampleRate = 8000)
+            {
+                this.sampleRate = sampleRate;
+                this.SetWaveFormat(sampleRate, 16);
+            }
 
             public override int Read(short[] buffer, int offset, int sampleCount)
             {
                 for (int n = 0; n < sampleCount; n++)
                 {
-                    // Bytebeat formula example:
-                    // This one generates some cool sound using t
-                    byte sample = (byte)(((t % 262144 < 131072) ? (((t / 64) >> 3 & t * 2 & t * 10) | (t >> 5 & t * 6) & (t >> 4 | t >> 5)) : (t % 262144 > 131072 & t % 262144 < 163840) ? (t >> 4 & t * 8) & (t >> 5 | t >> 4) | (t * 3 & t * 10) : (t % 262144 > 163840 & t % 262144 < 196608) ? (t >> 4 & t * 8) & (t >> 5 | t >> 4) | (t * 3 & t * 6) : (t % 262144 > 196608 & t % 262144 < 229376) ? (t >> 4 & t * 8) & (t >> 5 | t >> 4) | (t * 4 & t * 6) : (t % 262144 > 229376 & t % 262144 < 245760) ? (t >> 4 & t * 8) & (t >> 5 | t >> 4) | (t * 4 & t * 2) : (t >> 4 & t * 8) & (t >> 4) | (t * 4 & t * 2) >> 20));
+                    int tInt = (int)t;
+                    byte sample = (byte)(((tInt % 262144 < 131072) ? (((tInt / 64) >> 3 & tInt * 2 & tInt * 10) | (tInt >> 5 & tInt * 6) & (tInt >> 4 | tInt >> 5)) : (tInt % 262144 > 131072 & tInt % 262144 < 163840) ? (tInt >> 4 & tInt * 8) & (tInt >> 5 | tInt >> 4) | (tInt * 3 & tInt * 10) : (tInt % 262144 > 163840 & tInt % 262144 < 196608) ? (tInt >> 4 & tInt * 8) & (tInt >> 5 | tInt >> 4) | (tInt * 3 & tInt * 6) : (tInt % 262144 > 196608 & tInt % 262144 < 229376) ? (tInt >> 4 & tInt * 8) & (tInt >> 5 | tInt >> 4) | (tInt * 4 & tInt * 6) : (tInt % 262144 > 229376 & tInt % 262144 < 245760) ? (tInt >> 4 & tInt * 8) & (tInt >> 5 | tInt >> 4) | (tInt * 4 & tInt * 2) : (tInt >> 4 & tInt * 8) & (tInt >> 4) | (tInt * 4 & tInt * 2) >> 20));
 
-                    // Convert byte sample (0-255) to 16-bit PCM sample (-32768 to 32767)
                     short val = (short)((sample - 128) << 8);
-
                     buffer[offset + n] = val;
-                    t++;
+
+                    // Increment t by freq/sampleRate
+                    t += freq / sampleRate;
                 }
                 return sampleCount;
             }
         }
+
 
         public static void Main()
         {
