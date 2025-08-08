@@ -686,6 +686,7 @@ namespace gdi2
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr brush = CreateSolidBrush(rndclr[r.Next(0, rndclr.Length)]);
                 IntPtr mhdc = CreateCompatibleDC(hdc);
                 IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
                 IntPtr holdbit = SelectObject(mhdc, hbit);
@@ -696,6 +697,8 @@ namespace gdi2
                 lppoint[2].X = (left - 50) + 0;
                 lppoint[2].Y = (bottom - 50) + 0;
                 PlgBlt(hdc, lppoint, hdc, left - 20, top - 20, (right - left) + 40, (bottom - top) + 40, IntPtr.Zero, 0, 0);
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                DeleteObject(brush);
                 DeleteDC(hdc);
                 Thread.Sleep(20);
 
