@@ -657,7 +657,7 @@ namespace gdi2
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
                 DeleteObject(Brush);
                 DeleteDC(hdc);
-                Thread.Sleep(1000); // Sleep for 1 second
+                Thread.Sleep(100); // Sleep for 1 second
             }
 
 
