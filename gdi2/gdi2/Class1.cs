@@ -641,30 +641,37 @@ namespace gdi2
             public byte rgbReserved;
         }
 
-        class BytebeatWaveProvider : WaveProvider16
+        public class BytebeatWaveProvider : WaveProvider16
         {
-            private double t = 0;
-            private readonly int sampleRate;
-            public double freq = 440.0;  // Frequency in Hz, default to A4 note
+            private int t = 0;
 
-            public BytebeatWaveProvider(int sampleRate = 8000)
+            public BytebeatWaveProvider(int sampleRate = 44100)
             {
-                this.sampleRate = sampleRate;
-                this.SetWaveFormat(sampleRate, 16);
+                SetWaveFormat(sampleRate, 16);
             }
 
             public override int Read(short[] buffer, int offset, int sampleCount)
             {
                 for (int n = 0; n < sampleCount; n++)
                 {
-                    int tInt = (int)t;
-                    byte sample = (byte)(((tInt % 262144 < 131072) ? (((tInt / 64) >> 3 & tInt * 2 & tInt * 10) | (tInt >> 5 & tInt * 6) & (tInt >> 4 | tInt >> 5)) : (tInt % 262144 > 131072 & tInt % 262144 < 163840) ? (tInt >> 4 & tInt * 8) & (tInt >> 5 | tInt >> 4) | (tInt * 3 & tInt * 10) : (tInt % 262144 > 163840 & tInt % 262144 < 196608) ? (tInt >> 4 & tInt * 8) & (tInt >> 5 | tInt >> 4) | (tInt * 3 & tInt * 6) : (tInt % 262144 > 196608 & tInt % 262144 < 229376) ? (tInt >> 4 & tInt * 8) & (tInt >> 5 | tInt >> 4) | (tInt * 4 & tInt * 6) : (tInt % 262144 > 229376 & tInt % 262144 < 245760) ? (tInt >> 4 & tInt * 8) & (tInt >> 5 | tInt >> 4) | (tInt * 4 & tInt * 2) : (tInt >> 4 & tInt * 8) & (tInt >> 4) | (tInt * 4 & tInt * 2) >> 20));
+                    // Bytebeat formula, returns 0-255 byte
+                    byte sample = (byte)(
+                        ((t % 262144 < 131072) ?
+                            (((t / 64) >> 3 & t * 2 & t * 10) | (t >> 5 & t * 6) & (t >> 4 | t >> 5)) :
+                         (t % 262144 > 131072 && t % 262144 < 163840) ?
+                            (t >> 4 & t * 8) & (t >> 5 | t >> 4) | (t * 3 & t * 10) :
+                         (t % 262144 > 163840 && t % 262144 < 196608) ?
+                            (t >> 4 & t * 8) & (t >> 5 | t >> 4) | (t * 3 & t * 6) :
+                         (t % 262144 > 196608 && t % 262144 < 229376) ?
+                            (t >> 4 & t * 8) & (t >> 5 | t >> 4) | (t * 4 & t * 6) :
+                         (t % 262144 > 229376 && t % 262144 < 245760) ?
+                            (t >> 4 & t * 8) & (t >> 5 | t >> 4) | (t * 4 & t * 2) :
+                            (t >> 4 & t * 8) & (t >> 4) | (t * 4 & t * 2) >> 20));
 
-                    short val = (short)((sample - 128) << 8);
+                    short val = (short)((sample - 128) << 8); // Convert to 16-bit PCM
                     buffer[offset + n] = val;
 
-                    // Increment t by freq/sampleRate
-                    t += freq / sampleRate;
+                    t++;
                 }
                 return sampleCount;
             }
@@ -682,16 +689,10 @@ namespace gdi2
 
             uint[] rndclr = { 0x2AFA00, 0xFA0000, 0xFA00D4, 0x0057FA };
 
-            BytebeatWaveProvider bytebeat = new BytebeatWaveProvider(44100);
-            bytebeat.freq = 8000; // optional, your frequency
+            var waveProvider = new BytebeatWaveProvider(44100);
 
-            // Create playback device
             WaveOutEvent waveOut = new WaveOutEvent();
-
-            // Initialize playback with bytebeat source
-            waveOut.Init(bytebeat);
-
-            // Start playback
+            waveOut.Init(waveProvider);
             waveOut.Play();
 
 
