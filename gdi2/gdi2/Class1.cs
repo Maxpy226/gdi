@@ -764,13 +764,16 @@ namespace gdi2
             const int IDI_WARNING = 32515;
             const int IDI_QUESTION = 32514;
 
-            IntPtr errorIcon = LoadIcon(IntPtr.Zero, new IntPtr(IDI_ERROR));
+            string rndicons = "IDI_ERROR,IDI_HAND,IDI_WARNING,IDI_QUESTION";
+            string[] rndiconarray = rndicons.Split(',');
+
 
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
                 IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
+                IntPtr rndicondraw = LoadIcon(IntPtr.Zero, new IntPtr(int.Parse(rndiconarray[r.Next(rndiconarray.Length)])));
                 IntPtr mhdc = CreateCompatibleDC(hdc);
                 IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
                 IntPtr holdbit = SelectObject(mhdc, hbit);
@@ -781,7 +784,7 @@ namespace gdi2
                 SelectObject(hdc, brush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
                 // Draw error icon at mouse position
-                DrawIcon(hdc, mousePos.X - 16, mousePos.Y - 16, errorIcon); // Offset by 16 to center
+                DrawIcon(hdc, mousePos.X - 16, mousePos.Y - 16, rndicondraw); // Offset by 16 to center
                 ReleaseDC(IntPtr.Zero, hdc);
                 DeleteObject(brush);
                 DeleteDC(hdc);
