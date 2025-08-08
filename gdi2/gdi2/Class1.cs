@@ -764,16 +764,18 @@ namespace gdi2
             const int IDI_WARNING = 32515;
             const int IDI_QUESTION = 32514;
 
-            string rndicons = "IDI_ERROR,IDI_HAND,IDI_WARNING,IDI_QUESTION";
-            string[] rndiconarray = rndicons.Split(',');
-
+            // Use the actual integer values, not the constant names
+            int[] rndicons = { IDI_ERROR, IDI_HAND, IDI_WARNING, IDI_QUESTION };
 
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
                 IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
-                IntPtr rndicondraw = LoadIcon(IntPtr.Zero, new IntPtr(int.Parse(rndiconarray[r.Next(rndiconarray.Length)])));
+
+                // Now you can directly use the integer values
+                IntPtr rndicondraw = LoadIcon(IntPtr.Zero, new IntPtr(rndicons[r.Next(rndicons.Length)]));
+
                 IntPtr mhdc = CreateCompatibleDC(hdc);
                 IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
                 IntPtr holdbit = SelectObject(mhdc, hbit);
@@ -783,13 +785,18 @@ namespace gdi2
                 BitBlt(hdc, randsec, r.Next(-8, 8), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
                 SelectObject(hdc, brush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
-                // Draw error icon at mouse position
-                DrawIcon(hdc, mousePos.X - 16, mousePos.Y - 16, rndicondraw); // Offset by 16 to center
-                ReleaseDC(IntPtr.Zero, hdc);
-                DeleteObject(brush);
-                DeleteDC(hdc);
 
-                Thread.Sleep(50); // Adjust for smoothness
+                // Draw error icon at mouse position
+                DrawIcon(hdc, mousePos.X - 16, mousePos.Y - 16, rndicondraw);
+
+                // Fixed cleanup order
+                SelectObject(mhdc, holdbit);
+                DeleteObject(hbit);
+                DeleteDC(mhdc);
+                DeleteObject(brush);
+                ReleaseDC(IntPtr.Zero, hdc);
+
+                Thread.Sleep(50);
             }
 
 
