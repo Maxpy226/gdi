@@ -912,7 +912,7 @@ namespace gdi2
                 SelectObject(hdc, brush);
                 FillRect(hdc, ref rect, brush);
                 SetBkColor(hdc, (int)rndbw);
-                SetTextColor(hdc, (int)rndbw);
+                SetTextColor(hdc, (int)blackwhite[r.Next(blackwhite.Length)]);
                 IntPtr hFont = CreateFont(-50, 0, 0, 0, 400, 0, 0, 0, 1, 0, 0, 0, 0, "Arial");
                 IntPtr oldFont = SelectObject(hdc, hFont);
                 TextOut(hdc, rndx, rndy, text2, text2.Length);
