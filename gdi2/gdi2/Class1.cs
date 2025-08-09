@@ -987,7 +987,7 @@ namespace gdi2
 
                     DeleteObject(brush);
                 }
-                
+                //test
                 DeleteDC(hdc);
                 Thread.Sleep(50);
             }

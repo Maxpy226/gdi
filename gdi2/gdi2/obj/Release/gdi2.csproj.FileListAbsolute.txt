@@ -34,3 +34,5 @@ C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\System.Security.AccessCont
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\System.Security.Principal.Windows.dll
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\Costura.pdb
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\Costura.xml
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.csproj.Fody.CopyLocal.cache
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.csproj.Fody.RuntimeCopyLocal.cache
