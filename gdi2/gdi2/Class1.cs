@@ -871,13 +871,7 @@ namespace gdi2
             waveOut2.Init(waveProvider2);
             waveOut2.Play();
             stopwatch.Restart();
-
-            string[] text = new string[] {
-                "darkmatter.exe",
-                "darkmatter.exe has fucked your pc",
-                "un3nown"
-            };
-
+            
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
@@ -892,6 +886,7 @@ namespace gdi2
                 IntPtr oldFont = SelectObject(hdc, hFont);
                 for (int i = 0; i < 30; i++)
                 {
+                    string[] text = { "darkmatter.exe", "darkmatter.exe has fucked your pc", "un3nown" };
                     int rndx = r.Next(x);
                     int rndy = r.Next(y);
                     SetTextColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
