@@ -190,6 +190,9 @@ namespace gdi2
         [DllImport("user32.dll")]
         public static extern bool FillRect(IntPtr hDC, ref RECT lprc, IntPtr hbr);
 
+        [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
+        public static extern bool TextOut(IntPtr hdc, int x, int y, string lpString, int c);
+
 
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
@@ -847,14 +850,19 @@ namespace gdi2
 
             stopwatch.Restart();
 
+            string[] text = { "darkmatter.exe", "darkmatter.exe has fucked your pc", "un3nown" };
+
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
                 IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
+                int rndx = r.Next(x);
+                int rndy = r.Next(y);
                 var rect = new RECT(0, 0, x, y);
                 SelectObject(hdc, brush);
                 FillRect(hdc, ref rect, brush);
+                TextOut(hdc, rndx, rndy, text[r.Next(text.Length)], text[r.Next(text.Length)].Length);
                 DeleteObject(brush);
                 DeleteDC(hdc);
                 Thread.Sleep(20);
