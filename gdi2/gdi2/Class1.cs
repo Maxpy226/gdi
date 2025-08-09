@@ -963,31 +963,29 @@ namespace gdi2
             }
             
             stopwatch.Restart();
-            stopwatch.Restart();
             while (stopwatch.ElapsedMilliseconds < duration)
             {
-                r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
 
                 float time = stopwatch.ElapsedMilliseconds / 300.0f;
-                int waveOffset = (int)(Math.Sin(time) * 200);
+                int offset = (int)(Math.Sin(time) * 100);
 
-                uint color = rndclr[((int)time) % rndclr.Length];
+                // Moving pattern overlay
+                uint color = rndclr[(int)(time) % rndclr.Length];
                 IntPtr brush = CreateSolidBrush(color);
                 SelectObject(hdc, brush);
 
-                // Animated wave pattern
-                for (int i = 0; i < y; i += 20)
+                // Animated diagonal bars
+                for (int i = 0; i < x + y; i += 50)
                 {
-                    int xOffset = (int)(Math.Sin((time + i * 0.01f)) * 100);
-                    PatBlt(hdc, waveOffset + xOffset, i, x / 3, 10, TernaryRasterOperations.PATINVERT);
+                    PatBlt(hdc, i + offset, 0, 20, y, TernaryRasterOperations.PATINVERT);
                 }
 
                 DeleteObject(brush);
                 ReleaseDC(IntPtr.Zero, hdc);
                 Thread.Sleep(50);
             }
-
+            BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
 
         }
     }
