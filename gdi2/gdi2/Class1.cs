@@ -899,18 +899,20 @@ namespace gdi2
             }
             stopwatch.Restart();
             string text2 = "darkmatter.exe";
+            uint[] blackwhite = { 0x000000, 0xFFFFFF };
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
+                uint rndbw = blackwhite[r.Next(blackwhite.Length)];
                 IntPtr hdc = GetDC(IntPtr.Zero);
-                IntPtr brush = CreateSolidBrush(0x000000);
+                IntPtr brush = CreateSolidBrush(rndbw);
                 int rndx = r.Next(x);
                 int rndy = r.Next(y);
                 var rect = new RECT(0, 0, x, y);
                 SelectObject(hdc, brush);
                 FillRect(hdc, ref rect, brush);
-                SetBkColor(hdc, 0x000000);
-                SetTextColor(hdc, 0xFFFFFF);
+                SetBkColor(hdc, (int)rndbw);
+                SetTextColor(hdc, (int)rndbw);
                 IntPtr hFont = CreateFont(-50, 0, 0, 0, 400, 0, 0, 0, 1, 0, 0, 0, 0, "Arial");
                 IntPtr oldFont = SelectObject(hdc, hFont);
                 TextOut(hdc, rndx, rndy, text2, text2.Length);
