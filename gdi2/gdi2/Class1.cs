@@ -889,11 +889,11 @@ namespace gdi2
                 SetTextColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
                 SetBkColor(hdc, (int)rndclr3);
                 TextOut(hdc, rndx, rndy, text[r.Next(text.Length)], text[r.Next(text.Length)].Length);
-                SelectObject(hdc, oldFont);
-                DeleteObject(hFont);
                 DeleteObject(brush);
                 DeleteDC(hdc);
                 Thread.Sleep(100);
+                SelectObject(hdc, oldFont);
+                DeleteObject(hFont);
             }
 
         }
