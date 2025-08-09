@@ -963,6 +963,7 @@ namespace gdi2
             }
             
             stopwatch.Restart();
+            BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 IntPtr hdc = GetDC(IntPtr.Zero);
@@ -983,9 +984,9 @@ namespace gdi2
 
                 DeleteObject(brush);
                 ReleaseDC(IntPtr.Zero, hdc);
-                Thread.Sleep(50);
+                Thread.Sleep(20);
             }
-            BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
+            
 
         }
     }
