@@ -967,31 +967,21 @@ namespace gdi2
             {
                 IntPtr hdc = GetDC(IntPtr.Zero);
 
-                // Clear screen
-                IntPtr blackBrush = CreateSolidBrush(0x000000);
-                var clearRect = new RECT(0, 0, x, y);
-                FillRect(hdc, ref clearRect, blackBrush);
-                DeleteObject(blackBrush);
+                float time = stopwatch.ElapsedMilliseconds / 300.0f;
+                int offset = (int)(Math.Sin(time) * 100);
 
-                float time = stopwatch.ElapsedMilliseconds / 200.0f;
+                // Moving pattern overlay
+                uint color = rndclr[(int)(time) % rndclr.Length];
+                IntPtr brush = CreateSolidBrush(color);
+                SelectObject(hdc, brush);
 
-                // Pulsing circles
-                for (int i = 0; i < 5; i++)
+                // Animated diagonal bars
+                for (int i = 0; i < x + y; i += 50)
                 {
-                    int radius = (int)(50 + Math.Sin(time + i) * 30);
-                    int centerX = (x / 5) * i + x / 10;
-                    int centerY = y / 2;
-
-                    uint color = rndclr[i % rndclr.Length];
-                    IntPtr brush = CreateSolidBrush(color);
-                    SelectObject(hdc, brush);
-
-                    Ellipse(hdc, centerX - radius, centerY - radius,
-                                 centerX + radius, centerY + radius);
-
-                    DeleteObject(brush);
+                    PatBlt(hdc, i + offset, 0, 20, y, TernaryRasterOperations.PATINVERT);
                 }
 
+                DeleteObject(brush);
                 ReleaseDC(IntPtr.Zero, hdc);
                 Thread.Sleep(50);
             }
