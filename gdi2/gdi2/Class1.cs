@@ -861,14 +861,14 @@ namespace gdi2
                 uint rndclr3 = rndclr[r.Next(rndclr.Length)];
                 IntPtr hdc = GetDC(IntPtr.Zero);
                 IntPtr brush = CreateSolidBrush(rndclr3);
-                int rndx = r.Next(x);
-                int rndy = r.Next(y);
                 var rect = new RECT(0, 0, x, y);
                 SelectObject(hdc, brush);
                 FillRect(hdc, ref rect, brush);
                 SetBkColor(hdc, (int)rndclr3);
                 for (int i = 0; i < 30; i++)
                 {
+                    int rndx = r.Next(x);
+                    int rndy = r.Next(y);
                     SetTextColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
                     TextOut(hdc, rndx, rndy, text[r.Next(text.Length)], text[r.Next(text.Length)].Length);
                 }
