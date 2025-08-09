@@ -962,6 +962,34 @@ namespace gdi2
                 Thread.Sleep(50);
             }
 
+            // Animated wave shader
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                IntPtr hdc = GetDC(IntPtr.Zero);
+
+                float time = stopwatch.ElapsedMilliseconds / 1000.0f; // Time in seconds
+
+                for (int px = 0; px < x; px += 2) // Skip pixels for performance
+                {
+                    for (int py = 0; py < y; py += 2)
+                    {
+                        // Wave shader formula
+                        float wave = (float)Math.Sin((px * 0.01f) + (time * 2.0f)) *
+                                    (float)Math.Cos((py * 0.01f) + (time * 1.5f));
+
+                        // Convert to color
+                        int intensity = (int)((wave + 1.0f) * 127.5f); // 0-255
+                        uint color = (uint)((intensity << 16) | (intensity << 8) | intensity);
+
+                        SetPixel(hdc, px, py, (int)color);
+                    }
+                }
+
+                ReleaseDC(IntPtr.Zero, hdc);
+                Thread.Sleep(16); // ~60 FPS
+            }
+
+
         }
     }
 }
