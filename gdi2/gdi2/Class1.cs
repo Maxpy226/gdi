@@ -810,7 +810,6 @@ namespace gdi2
 
             // Clean up
             SelectObject(hdcMem, oldBitmap);
-            DeleteObject(hBitmap);
             DeleteDC(hdcMem);
             ReleaseDC(IntPtr.Zero, hdcDesktop);
 
