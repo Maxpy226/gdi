@@ -791,8 +791,8 @@ namespace gdi2
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
 
                 // Randomly offset the cursor position
-                int offsetX = r.Next(-50, 50);
-                int offsetY = r.Next(-50, 50);
+                int offsetX = r.Next(-Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Width);
+                int offsetY = r.Next(-Screen.PrimaryScreen.Bounds.Height, Screen.PrimaryScreen.Bounds.Height);
                 SetCursorPos(startPos.X + offsetX, startPos.Y + offsetY);
 
                 // Get the NEW cursor position after moving it
