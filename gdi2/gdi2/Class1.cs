@@ -216,9 +216,6 @@ namespace gdi2
             uint fdwPitchAndFamily,
             string lpszFace);
 
-        // Import the ANSI version specifically
-        [DllImport("user32.dll", CharSet = CharSet.Ansi)]
-        static extern bool TextOutA(IntPtr hdc, int nXStart, int nYStart, string lpString, int cbString);
 
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
@@ -885,14 +882,14 @@ namespace gdi2
                 SelectObject(hdc, brush);
                 FillRect(hdc, ref rect, brush);
                 SetBkColor(hdc, (int)rndclr3);
-                IntPtr hFont = CreateFont(-30, 0, 0, 0, 400, 0, 0, 0, 1, 0, 0, 0, 0, "Arial");
+                IntPtr hFont = CreateFont(-30, 0, 0, 0, 400, 0, 0, 0, 1, 0, 0, 0, 0, "Courier New");
                 IntPtr oldFont = SelectObject(hdc, hFont);
                 for (int i = 0; i < 30; i++)
                 {
                     int rndx = r.Next(x);
                     int rndy = r.Next(y);
                     SetTextColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
-                    TextOutA(hdc, rndx, rndy, text[r.Next(text.Length)], text[r.Next(text.Length)].Length);
+                    TextOut(hdc, rndx, rndy, text[r.Next(text.Length)], text[r.Next(text.Length)].Length);
                 }
                 SelectObject(hdc, oldFont);
                 DeleteObject(hFont);
