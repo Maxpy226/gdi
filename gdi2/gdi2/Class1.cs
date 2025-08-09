@@ -734,6 +734,28 @@ namespace gdi2
             }
         }
 
+        public class BytebeatWaveProvider3 : IWaveProvider
+        {
+            public WaveFormat WaveFormat { get; }
+            private int t = 0;
+
+            public BytebeatWaveProvider3()
+            {
+                WaveFormat = new WaveFormat(8000, 8, 1); // 8kHz, 8-bit, mono
+            }
+
+            public int Read(byte[] buffer, int offset, int count)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    int value = t * (42 & t >> 10);
+                    buffer[offset + i] = (byte)(value & 255);
+                    t++;
+                }
+                return count;
+            }
+        }
+
 
         public static void Main()
         {
@@ -919,6 +941,35 @@ namespace gdi2
                 SelectObject(hdc, oldFont);
                 DeleteObject(hFont);
                 DeleteObject(brush);
+                DeleteDC(hdc);
+                Thread.Sleep(50);
+            }
+            waveOut2.Stop();
+            waveOut2.Dispose();
+
+            var waveProvider3 = new BytebeatWaveProvider3();
+            var waveOut3 = new WaveOutEvent();
+            waveOut3.Init(waveProvider3);
+            waveOut3.Play();
+
+            BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
+
+            // Clean up
+            SelectObject(hdcMem, oldBitmap);
+            DeleteObject(hBitmap);
+            DeleteDC(hdcMem);
+            ReleaseDC(IntPtr.Zero, hdcDesktop);
+            stopwatch.Restart();
+
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                r = new Random();
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr hatchbrush = CreateHatchBrush(r.Next(4), 0);
+                SetBkColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
+                SelectObject(hdc, hatchbrush);
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                DeleteObject(hatchbrush);
                 DeleteDC(hdc);
                 Thread.Sleep(50);
             }
