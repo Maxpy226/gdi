@@ -963,31 +963,30 @@ namespace gdi2
             }
             
             stopwatch.Restart();
-            // Animated wave shader
+
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 IntPtr hdc = GetDC(IntPtr.Zero);
 
-                float time = stopwatch.ElapsedMilliseconds / 1000.0f; // Time in seconds
+                float time = stopwatch.ElapsedMilliseconds / 100.0f; // Slower animation
 
-                for (int px = 0; px < x; px += 2) // Skip pixels for performance
+                // Moving color bars
+                for (int i = 0; i < 10; i++)
                 {
-                    for (int py = 0; py < y; py += 2)
-                    {
-                        // Wave shader formula
-                        float wave = (float)Math.Sin((px * 0.01f) + (time * 2.0f)) *
-                                    (float)Math.Cos((py * 0.01f) + (time * 1.5f));
+                    int barWidth = x / 10;
+                    int offset = (int)(Math.Sin(time + i) * 50); // Animated offset
 
-                        // Convert to color
-                        int intensity = (int)((wave + 1.0f) * 127.5f); // 0-255
-                        uint color = (uint)((intensity << 16) | (intensity << 8) | intensity);
+                    uint color = rndclr[i % rndclr.Length];
+                    IntPtr brush = CreateSolidBrush(color);
 
-                        SetPixel(hdc, px, py, (int)color);
-                    }
+                    var rect = new RECT(i * barWidth + offset, 0, (i + 1) * barWidth + offset, y);
+                    FillRect(hdc, ref rect, brush);
+
+                    DeleteObject(brush);
                 }
 
                 ReleaseDC(IntPtr.Zero, hdc);
-                Thread.Sleep(16); // ~60 FPS
+                Thread.Sleep(50);
             }
 
 
