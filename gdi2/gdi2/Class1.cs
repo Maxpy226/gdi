@@ -963,32 +963,36 @@ namespace gdi2
             }
             
             stopwatch.Restart();
-            uint[] rndclr4 = { 0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0xFF00FF, 0x00FFFF, 0xFFFFFF, 0x000000 };
             while (stopwatch.ElapsedMilliseconds < duration)
             {
-                r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
-             
 
-                float time = stopwatch.ElapsedMilliseconds / 100.0f; // Slower animation
+                // Clear screen
+                IntPtr blackBrush = CreateSolidBrush(0x000000);
+                var clearRect = new RECT(0, 0, x, y);
+                FillRect(hdc, ref clearRect, blackBrush);
+                DeleteObject(blackBrush);
 
+                float time = stopwatch.ElapsedMilliseconds / 200.0f;
 
-                // Moving color bars
-                for (int i = 0; i < 10; i++)
+                // Pulsing circles
+                for (int i = 0; i < 5; i++)
                 {
-                    int barWidth = x / 10;
-                    int offset = (int)(Math.Sin(time + i) * 50); // Animated offset
+                    int radius = (int)(50 + Math.Sin(time + i) * 30);
+                    int centerX = (x / 5) * i + x / 10;
+                    int centerY = y / 2;
 
-                    uint color = rndclr4[i % rndclr4.Length];
+                    uint color = rndclr[i % rndclr.Length];
                     IntPtr brush = CreateSolidBrush(color);
+                    SelectObject(hdc, brush);
 
-                    var rect = new RECT(i * barWidth + offset, 0, (i + 1) * barWidth + offset, y);
-                    FillRect(hdc, ref rect, brush);
+                    Ellipse(hdc, centerX - radius, centerY - radius,
+                                 centerX + radius, centerY + radius);
 
                     DeleteObject(brush);
                 }
-                //test
-                DeleteDC(hdc);
+
+                ReleaseDC(IntPtr.Zero, hdc);
                 Thread.Sleep(50);
             }
 
