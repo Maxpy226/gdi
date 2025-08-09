@@ -986,7 +986,57 @@ namespace gdi2
                 ReleaseDC(IntPtr.Zero, hdc);
                 Thread.Sleep(1);
             }
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                r = new Random();
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
+                IntPtr mhdc = CreateCompatibleDC(hdc);
+                IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
+                IntPtr holdbit = SelectObject(mhdc, hbit);
+                int randsec = r.Next(x);
+                BitBlt(hdc, randsec, r.Next(-8, 8), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
+                SelectObject(hdc, brush);
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                DeleteObject(brush);
+                DeleteDC(hdc);
+            }
             
+            stopwatch.Restart();
+
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                r = new Random();
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr mhdc = CreateCompatibleDC(hdc);
+                IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
+                IntPtr holdbit = SelectObject(mhdc, hbit);
+
+                if (r.Next(2) == 1)
+                {
+                    lppoint[0].X = (left + 30) + 0;
+                    lppoint[0].Y = (top - 30) + 0;
+                    lppoint[1].X = (right + 30) + 0;
+                    lppoint[1].Y = (top + 30) + 0;
+                    lppoint[2].X = (left - 30) + 0;
+                    lppoint[2].Y = (bottom - 30) + 0;
+                }
+                else
+                {
+                    lppoint[0].X = (left - 30) + 0;
+                    lppoint[0].Y = (top + 30) + 0;
+                    lppoint[1].X = (right - 30) + 0;
+                    lppoint[1].Y = (top - 30) + 0;
+                    lppoint[2].X = (left + 30) + 0;
+                    lppoint[2].Y = (bottom + 30) + 0;
+                }
+                PlgBlt(mhdc, lppoint, hdc, left, top, (right - left), (bottom - top), IntPtr.Zero, 0, 0);
+                AlphaBlend(hdc, 0, 0, x, y, mhdc, 0, 0, x, y, new BLENDFUNCTION(0, 0, 50, 0));
+                SelectObject(mhdc, holdbit);
+                DeleteObject(hbit);
+                DeleteDC(mhdc);
+                DeleteDC(hdc);
+            }
 
         }
     }
