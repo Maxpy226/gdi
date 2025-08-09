@@ -808,12 +808,6 @@ namespace gdi2
 
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
 
-            // Clean up
-            SelectObject(hdcMem, oldBitmap);
-            DeleteDC(hdcMem);
-            ReleaseDC(IntPtr.Zero, hdcDesktop);
-
-
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             var duration = 20000; 
             while (stopwatch.ElapsedMilliseconds < duration)
@@ -953,11 +947,6 @@ namespace gdi2
 
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
 
-            // Clean up
-            SelectObject(hdcMem, oldBitmap);
-            DeleteObject(hBitmap);
-            DeleteDC(hdcMem);
-            ReleaseDC(IntPtr.Zero, hdcDesktop);
             stopwatch.Restart();
 
             while (stopwatch.ElapsedMilliseconds < duration)
