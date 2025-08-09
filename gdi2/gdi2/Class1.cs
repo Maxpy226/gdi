@@ -871,7 +871,13 @@ namespace gdi2
             waveOut2.Init(waveProvider2);
             waveOut2.Play();
             stopwatch.Restart();
-            string[] text = { "darkmatter.exe", "darkmatter.exe has fucked your pc", "un3nown" };
+
+            string[] text = new string[] {
+                "darkmatter.exe",
+                "darkmatter.exe has fucked your pc",
+                "un3nown"
+            };
+
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
