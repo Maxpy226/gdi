@@ -769,7 +769,7 @@ namespace gdi2
             {
                 for (int i = 0; i < count; i++)
                 {
-                    int value = t * (42 & t >> 10);
+                    int value = t >> 5 | (t >> 2) * (t >> 5);
                     buffer[offset + i] = (byte)(value & 255);
                     t++;
                 }
@@ -1076,6 +1076,8 @@ namespace gdi2
                 DeleteObject(brush);
                 DeleteDC(hdc);
             }
+
+            BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
             waveOut3.Stop();
             waveOut3.Dispose();
             var waveProvider4 = new BytebeatWaveProvider4();
