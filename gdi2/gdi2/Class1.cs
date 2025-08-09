@@ -882,7 +882,7 @@ namespace gdi2
                 SelectObject(hdc, brush);
                 FillRect(hdc, ref rect, brush);
                 SetBkColor(hdc, (int)rndclr3);
-                IntPtr hFont = CreateFont(-24, 0, 0, 0, 400, 0, 0, 0, 1, 0, 0, 0, 0, "Arial");
+                IntPtr hFont = CreateFont(-50, 0, 0, 0, 400, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
                 IntPtr oldFont = SelectObject(hdc, hFont);
                 for (int i = 0; i < 30; i++)
                 {
