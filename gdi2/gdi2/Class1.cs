@@ -953,7 +953,7 @@ namespace gdi2
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
-                IntPtr hatchbrush = CreateHatchBrush(r.Next(4), 0);
+                IntPtr hatchbrush = CreateHatchBrush(r.Next(8), 0);
                 SetBkColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
                 SelectObject(hdc, hatchbrush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
