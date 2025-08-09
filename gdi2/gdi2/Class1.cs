@@ -963,18 +963,12 @@ namespace gdi2
             }
             
             stopwatch.Restart();
-
+            uint[] rndclr4 = { 0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0xFF00FF, 0x00FFFF, 0xFFFFFF, 0x000000 };
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
-                IntPtr mhdc = CreateCompatibleDC(hdc);
-                IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
-                IntPtr holdbit = SelectObject(mhdc, hbit);
-
-                BitBlt(mhdc, 0, 0, x, y, hdcDesktop, left, top, TernaryRasterOperations.SRCCOPY);
-                AlphaBlend(hdc, r.Next(-4, 4), r.Next(-4, 4), x, y, mhdc, 0, 0, x, y, new BLENDFUNCTION(0, 0, 70, 0));
-                SelectObject(mhdc, holdbit);
+             
 
                 float time = stopwatch.ElapsedMilliseconds / 100.0f; // Slower animation
 
@@ -985,7 +979,7 @@ namespace gdi2
                     int barWidth = x / 10;
                     int offset = (int)(Math.Sin(time + i) * 50); // Animated offset
 
-                    uint color = rndclr[i % rndclr.Length];
+                    uint color = rndclr4[i % rndclr4.Length];
                     IntPtr brush = CreateSolidBrush(color);
 
                     var rect = new RECT(i * barWidth + offset, 0, (i + 1) * barWidth + offset, y);
@@ -994,9 +988,6 @@ namespace gdi2
                     DeleteObject(brush);
                 }
                 
-                DeleteObject(holdbit);
-                DeleteObject(hbit);
-                DeleteDC(mhdc);
                 DeleteDC(hdc);
                 Thread.Sleep(50);
             }
