@@ -966,9 +966,15 @@ namespace gdi2
 
             while (stopwatch.ElapsedMilliseconds < duration)
             {
+                r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
 
                 float time = stopwatch.ElapsedMilliseconds / 100.0f; // Slower animation
+
+                IntPtr hatchbrush = CreateHatchBrush(r.Next(4), 0);
+                SetBkColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
+                SelectObject(hdc, hatchbrush);
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
 
                 // Moving color bars
                 for (int i = 0; i < 10; i++)
@@ -984,8 +990,8 @@ namespace gdi2
 
                     DeleteObject(brush);
                 }
-
-                ReleaseDC(IntPtr.Zero, hdc);
+                DeleteObject(hatchbrush);
+                DeleteDC(hdc);
                 Thread.Sleep(50);
             }
 
