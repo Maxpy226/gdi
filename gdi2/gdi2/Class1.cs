@@ -187,6 +187,9 @@ namespace gdi2
         [DllImport("user32.dll")]
         static extern bool SetCursorPos(int x, int y);
 
+        [DllImport("user32.dll")]
+        public static extern bool FillRect(IntPtr hDC, ref RECT lprc, IntPtr hbr);
+
 
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
@@ -683,6 +686,28 @@ namespace gdi2
             }
         }
 
+        public class BytebeatWaveProvider2 : IWaveProvider
+        {
+            public WaveFormat WaveFormat { get; }
+            private int t = 0;
+
+            public BytebeatWaveProvider2()
+            {
+                WaveFormat = new WaveFormat(8000, 8, 1); // 8kHz, 8-bit, mono
+            }
+
+            public int Read(byte[] buffer, int offset, int count)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    int value = t * (((t & 4096) != 0 ? ((t % 65536) < 59392 ? 7 : (t & 7)) : 16) + (1 & (t >> 14))) >> (3 & (-t >> (((t & 2048) != 0) ? 2 : 10))) | (t >> (((t & 16384) != 0) ? ((t & 4096) != 0 ? 10 : 3) : 2));
+                    buffer[offset + i] = (byte)(value & 255);
+                    t++;
+                }
+                return count;
+            }
+        }
+
 
         public static void Main()
         {
@@ -811,6 +836,27 @@ namespace gdi2
                 DeleteDC(mhdc);
                 DeleteObject(brush);
                 ReleaseDC(IntPtr.Zero, hdc);
+                Thread.Sleep(20);
+            }
+            waveOut.Stop();
+            waveOut.Dispose();
+            var waveProvider2 = new BytebeatWaveProvider2();
+            var waveOut2 = new WaveOutEvent();
+            waveOut2.Init(waveProvider2);
+            waveOut2.Play();
+
+            stopwatch.Restart();
+
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                r = new Random();
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
+                var rect = new RECT(0, 0, x, y);
+                SelectObject(hdc, brush);
+                FillRect(hdc, ref rect, brush);
+                DeleteObject(brush);
+                DeleteDC(hdc);
                 Thread.Sleep(20);
             }
 
