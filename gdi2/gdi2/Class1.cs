@@ -755,6 +755,27 @@ namespace gdi2
                 return count;
             }
         }
+        public class BytebeatWaveProvider4 : IWaveProvider
+        {
+            public WaveFormat WaveFormat { get; }
+            private int t = 0;
+
+            public BytebeatWaveProvider4()
+            {
+                WaveFormat = new WaveFormat(8000, 8, 1); // 8kHz, 8-bit, mono
+            }
+
+            public int Read(byte[] buffer, int offset, int count)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    int value = t * (42 & t >> 10);
+                    buffer[offset + i] = (byte)(value & 255);
+                    t++;
+                }
+                return count;
+            }
+        }
 
 
         public static void Main()
@@ -1054,6 +1075,34 @@ namespace gdi2
                 DeleteObject(bitmap);
                 DeleteObject(brush);
                 DeleteDC(hdc);
+            }
+            waveOut3.Stop();
+            waveOut3.Dispose();
+            var waveProvider4 = new BytebeatWaveProvider4();
+            var waveOut4 = new WaveOutEvent();
+            waveOut4.Init(waveProvider4);
+            waveOut4.Play();
+            stopwatch.Restart();
+
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                r = new Random();
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
+                IntPtr randicon = LoadIcon(IntPtr.Zero, new IntPtr(rndicons[r.Next(rndicons.Length)]));
+
+                LoadIcon(hdc, new IntPtr(rndicons[r.Next(rndicons.Length)]));
+
+                int rndx = r.Next(x);
+                int rndy = r.Next(y);
+                
+                DrawIcon(hdc, rndx, rndy, randicon);
+                SelectObject(hdc, brush);
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                DeleteObject(brush);
+                DeleteObject(randicon);
+                DeleteDC(hdc);
+                Thread.Sleep(20);
             }
 
         }
