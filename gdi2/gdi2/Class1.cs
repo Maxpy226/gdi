@@ -193,6 +193,12 @@ namespace gdi2
         [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
         public static extern bool TextOut(IntPtr hdc, int x, int y, string lpString, int c);
 
+        [DllImport("gdi32.dll")]
+        public static extern uint SetTextColor(IntPtr hdc, int crColor);
+
+        [DllImport("gdi32.dll")]
+        public static extern uint SetBkColor(IntPtr hdc, int crColor);
+
 
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
@@ -847,25 +853,25 @@ namespace gdi2
             var waveOut2 = new WaveOutEvent();
             waveOut2.Init(waveProvider2);
             waveOut2.Play();
-
             stopwatch.Restart();
-
             string[] text = { "darkmatter.exe", "darkmatter.exe has fucked your pc", "un3nown" };
-
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
+                uint rndclr3 = rndclr[r.Next(rndclr.Length)];
                 IntPtr hdc = GetDC(IntPtr.Zero);
-                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
+                IntPtr brush = CreateSolidBrush(rndclr3);
                 int rndx = r.Next(x);
                 int rndy = r.Next(y);
                 var rect = new RECT(0, 0, x, y);
                 SelectObject(hdc, brush);
                 FillRect(hdc, ref rect, brush);
+                SetTextColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
+                SetBkColor(hdc, (int)rndclr3);
                 TextOut(hdc, rndx, rndy, text[r.Next(text.Length)], text[r.Next(text.Length)].Length);
                 DeleteObject(brush);
                 DeleteDC(hdc);
-                Thread.Sleep(20);
+                Thread.Sleep(50);
             }
 
         }
