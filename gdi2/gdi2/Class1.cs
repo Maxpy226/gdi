@@ -961,7 +961,8 @@ namespace gdi2
                 DeleteDC(hdc);
                 Thread.Sleep(50);
             }
-
+            
+            stopwatch.Restart();
             // Animated wave shader
             while (stopwatch.ElapsedMilliseconds < duration)
             {
