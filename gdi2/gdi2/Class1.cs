@@ -199,6 +199,23 @@ namespace gdi2
         [DllImport("gdi32.dll")]
         public static extern uint SetBkColor(IntPtr hdc, int crColor);
 
+        [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+        static extern IntPtr CreateFont(
+            int nHeight,          // Height of font (in logical units)
+            int nWidth,           // Width of font (0 = default)
+            int nEscapement,
+            int nOrientation,
+            int fnWeight,         // Font weight (400=normal, 700=bold)
+            uint fdwItalic,
+            uint fdwUnderline,
+            uint fdwStrikeOut,
+            uint fdwCharSet,
+            uint fdwOutputPrecision,
+            uint fdwClipPrecision,
+            uint fdwQuality,
+            uint fdwPitchAndFamily,
+            string lpszFace);
+
 
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
@@ -865,6 +882,8 @@ namespace gdi2
                 SelectObject(hdc, brush);
                 FillRect(hdc, ref rect, brush);
                 SetBkColor(hdc, (int)rndclr3);
+                IntPtr hFont = CreateFont(-24, 0, 0, 0, 400, 0, 0, 0, 1, 0, 0, 0, 0, "Arial");
+                IntPtr oldFont = SelectObject(hdc, hFont);
                 for (int i = 0; i < 30; i++)
                 {
                     int rndx = r.Next(x);
@@ -872,6 +891,8 @@ namespace gdi2
                     SetTextColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
                     TextOut(hdc, rndx, rndy, text[r.Next(text.Length)], text[r.Next(text.Length)].Length);
                 }
+                SelectObject(hdc, oldFont);
+                DeleteObject(hFont);
                 DeleteObject(brush);
                 DeleteDC(hdc);
                 Thread.Sleep(50);
