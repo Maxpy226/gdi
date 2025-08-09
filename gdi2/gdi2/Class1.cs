@@ -897,7 +897,7 @@ namespace gdi2
                 SelectObject(hdc, brush);
                 FillRect(hdc, ref rect, brush);
                 SetBkColor(hdc, (int)rndclr3);
-                IntPtr hFont = CreateFont(-30, 0, 0, 0, 400, 0, 0, 0, 1, 0, 0, 0, 0, "Courier New");
+                IntPtr hFont = CreateFont(-30, 0, 0, 0, 400, 0, 0, 0, 1, 0, 0, 0, 0, "Arial");
                 IntPtr oldFont = SelectObject(hdc, hFont);
                 for (int i = 0; i < 30; i++)
                 {
@@ -968,13 +968,16 @@ namespace gdi2
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr mhdc = CreateCompatibleDC(hdc);
+                IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
+                IntPtr holdbit = SelectObject(mhdc, hbit);
+
+                BitBlt(mhdc, 0, 0, x, y, hdcDesktop, left, top, TernaryRasterOperations.SRCCOPY);
+                AlphaBlend(hdc, r.Next(-4, 4), r.Next(-4, 4), x, y, mhdc, 0, 0, x, y, new BLENDFUNCTION(0, 0, 70, 0));
+                SelectObject(mhdc, holdbit);
 
                 float time = stopwatch.ElapsedMilliseconds / 100.0f; // Slower animation
 
-                IntPtr hatchbrush = CreateHatchBrush(r.Next(4), 0);
-                SetBkColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
-                SelectObject(hdc, hatchbrush);
-                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
 
                 // Moving color bars
                 for (int i = 0; i < 10; i++)
@@ -990,7 +993,10 @@ namespace gdi2
 
                     DeleteObject(brush);
                 }
-                DeleteObject(hatchbrush);
+                
+                DeleteObject(holdbit);
+                DeleteObject(hbit);
+                DeleteDC(mhdc);
                 DeleteDC(hdc);
                 Thread.Sleep(50);
             }
