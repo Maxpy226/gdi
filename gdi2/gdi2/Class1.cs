@@ -888,12 +888,12 @@ namespace gdi2
                 FillRect(hdc, ref rect, brush);
                 SetTextColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
                 SetBkColor(hdc, (int)rndclr3);
-                TextOut(hdc, rndx, rndy, text[r.Next(text.Length)], 5);
+                TextOut(hdc, rndx, rndy, text[r.Next(text.Length)], text[r.Next(text.Length)].Length);
                 SelectObject(hdc, oldFont);
                 DeleteObject(hFont);
                 DeleteObject(brush);
                 DeleteDC(hdc);
-                Thread.Sleep(50);
+                Thread.Sleep(100);
             }
 
         }
