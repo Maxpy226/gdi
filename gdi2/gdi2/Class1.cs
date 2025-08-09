@@ -54,7 +54,7 @@ namespace gdi2
         [DllImport("gdi32.dll")]
         static extern IntPtr CreateSolidBrush(uint crColor);
         [DllImport("gdi32.dll")]
-        static extern IntPtr CreateBitmap(int nWidth, int nHeight, uint cPlanes, uint cBitsPerPel, IntPtr lpvBits);
+        static extern IntPtr CreateBitmap(int nWidth, int nHeight, uint cPlanes, uint cBitsPerPel, byte[] lpvBits);
         [DllImport("gdi32.dll", EntryPoint = "DeleteDC")]
         public static extern bool DeleteDC(IntPtr hdc);
         [DllImport("gdi32.dll")]
@@ -809,7 +809,7 @@ namespace gdi2
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
 
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            var duration = 20000; 
+            var duration = 20000;
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
@@ -910,7 +910,7 @@ namespace gdi2
                 DeleteObject(hFont);
                 DeleteObject(brush);
                 DeleteDC(hdc);
-                Thread.Sleep(50);                
+                Thread.Sleep(50);
             }
             stopwatch.Restart();
             string text2 = "darkmatter.exe";
@@ -961,7 +961,7 @@ namespace gdi2
                 DeleteDC(hdc);
                 Thread.Sleep(50);
             }
-            
+
             stopwatch.Restart();
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
             while (stopwatch.ElapsedMilliseconds < duration)
@@ -1001,7 +1001,7 @@ namespace gdi2
                 DeleteObject(brush);
                 DeleteDC(hdc);
             }
-            
+
             stopwatch.Restart();
 
             while (stopwatch.ElapsedMilliseconds < duration)
@@ -1035,6 +1035,23 @@ namespace gdi2
                 SelectObject(mhdc, holdbit);
                 DeleteObject(hbit);
                 DeleteDC(mhdc);
+                DeleteDC(hdc);
+            }
+            stopwatch.Restart();
+            // Restore the original desktop image
+            BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                r = new Random();
+                IntPtr hdc = GetDC(IntPtr.Zero);
+
+                byte[] bits = { 0xFF, 0x81, 0xbd, 0xa5, 0xbd, 0x81, 0xff };
+                IntPtr bitmap = CreateBitmap(1, 1, 1, 1, bits);
+                IntPtr brush = CreatePatternBrush(bitmap);
+                SetBkColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
+                SelectObject(hdc, brush);
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                DeleteObject(brush);
                 DeleteDC(hdc);
             }
 
