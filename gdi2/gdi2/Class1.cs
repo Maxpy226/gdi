@@ -1046,11 +1046,12 @@ namespace gdi2
                 IntPtr hdc = GetDC(IntPtr.Zero);
 
                 byte[] bits = { 0xFF, 0x81, 0xbd, 0xa5, 0xbd, 0x81, 0xff };
-                IntPtr bitmap = CreateBitmap(1, 1, 1, 1, bits);
+                IntPtr bitmap = CreateBitmap(8, 8, 1, 1, bits);
                 IntPtr brush = CreatePatternBrush(bitmap);
                 SetBkColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
                 SelectObject(hdc, brush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                DeleteObject(bitmap);
                 DeleteObject(brush);
                 DeleteDC(hdc);
             }
