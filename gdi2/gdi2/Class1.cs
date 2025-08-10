@@ -1034,8 +1034,14 @@ namespace gdi2
 
         static void ScrollEffect()
         {
+            // Make sure these are initialized first!
+            if (stopwatch == null) stopwatch = new Stopwatch();
+            if (r == null) r = new Random();
+
             stopwatch.Restart();
             IntPtr hdc = GetDC(IntPtr.Zero);
+
+            
 
             // Capture the original screen
             IntPtr memDC = CreateCompatibleDC(hdc);
@@ -1044,7 +1050,7 @@ namespace gdi2
             SelectObject(memDC, bitmap);
             BitBlt(memDC, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
 
-            int scrollSpeed = 20;  // Pixels per frame
+            int scrollSpeed = 20;
             int screenOffset = 0;
 
             while (stopwatch.ElapsedMilliseconds < duration)
@@ -1053,29 +1059,28 @@ namespace gdi2
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.BLACKNESS);
 
                 // Draw multiple "screens" scrolling horizontally
-                for (int screenNum = -1; screenNum <= 2; screenNum++)  // 4 screens visible
+                for (int screenNum = -1; screenNum <= 2; screenNum++)
                 {
                     int xPos = (screenNum * x) - screenOffset;
 
-                    // Only draw if screen is visible
                     if (xPos > -x && xPos < x)
                     {
                         SelectObject(hdc, brush);
                         PatBlt(hdc, xPos, 0, x, y, TernaryRasterOperations.PATINVERT);
                     }
-
-                    screenOffset += scrollSpeed;
-                    if (screenOffset >= x) screenOffset = 0;  // Loop
-
-                    Thread.Sleep(20);  // Control speed
                 }
 
-                // Cleanup
-                DeleteObject(bitmap);
-                DeleteDC(memDC);
-                DeleteObject(brush);
-                DeleteDC(hdc);
+                screenOffset += scrollSpeed;  // MOVED OUTSIDE THE FOR LOOP
+                if (screenOffset >= x) screenOffset = 0;
+
+                Thread.Sleep(20);
             }
+
+            // Cleanup OUTSIDE the while loop
+            DeleteObject(bitmap);
+            DeleteDC(memDC);
+            DeleteObject(brush);
+            ReleaseDC(IntPtr.Zero, hdc);  // Use ReleaseDC, not DeleteDC
         }
         public static void Main(string[] args)
         {
