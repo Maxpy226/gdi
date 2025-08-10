@@ -1032,7 +1032,7 @@ namespace gdi2
             }
         }
 
-        static void MultiScreenScrollEffect()
+        static void ScrollEffect()
         {
             stopwatch.Restart();
             IntPtr hdc = GetDC(IntPtr.Zero);
@@ -1107,7 +1107,7 @@ namespace gdi2
                         RndIconSpam();
                         return;
                     case "scroll":
-                        MultiScreenScrollEffect();
+                        ScrollEffect();
                         return;
                 }
             }
@@ -1147,7 +1147,7 @@ namespace gdi2
 
             RndIconSpam();
 
-            MultiScreenScrollEffect();
+            ScrollEffect();
 
         }
     }
