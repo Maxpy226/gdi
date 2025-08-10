@@ -740,14 +740,19 @@ namespace gdi2
 
             public BytebeatWaveProvider4()
             {
-                WaveFormat = new WaveFormat(8000, 8, 1); // 8kHz, 8-bit, mono
+                WaveFormat = new WaveFormat(32000, 8, 1); // 8kHz, 8-bit, mono
             }
 
             public int Read(byte[] buffer, int offset, int count)
             {
                 for (int i = 0; i < count; i++)
                 {
-                    int value = t >> 5 | (t >> 2) * (t >> 5);
+                    int a = t & (t >> 6);
+                    int b = t | (t >> 8);
+                    int c = t | (t >> 7);
+                    int d = t | (t >> 9);
+                    int value = a + b + c + d;
+
                     buffer[offset + i] = (byte)(value & 255);
                     t++;
                 }
