@@ -962,6 +962,10 @@ namespace gdi2
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
                 DeleteObject(hatchbrush);
                 DeleteDC(hdc);
+                DeleteDC(mhdc);
+                SelectObject(mhdc, holdbit);
+                DeleteObject(hbit);
+               
                 Thread.Sleep(50);
             }
         }
