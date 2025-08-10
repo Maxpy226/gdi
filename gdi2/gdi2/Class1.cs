@@ -733,28 +733,6 @@ namespace gdi2
                 return count;
             }
         }
-
-        public class BytebeatWaveProvider3 : IWaveProvider
-        {
-            public WaveFormat WaveFormat { get; }
-            private int t = 0;
-
-            public BytebeatWaveProvider3()
-            {
-                WaveFormat = new WaveFormat(8000, 8, 1); // 8kHz, 8-bit, mono
-            }
-
-            public int Read(byte[] buffer, int offset, int count)
-            {
-                for (int i = 0; i < count; i++)
-                {
-                    int value = t * (42 & t >> 10);
-                    buffer[offset + i] = (byte)(value & 255);
-                    t++;
-                }
-                return count;
-            }
-        }
         public class BytebeatWaveProvider4 : IWaveProvider
         {
             public WaveFormat WaveFormat { get; }
@@ -958,13 +936,6 @@ namespace gdi2
                 DeleteDC(hdc);
                 Thread.Sleep(50);
             }
-            waveOut2.Stop();
-            waveOut2.Dispose();
-
-            var waveProvider3 = new BytebeatWaveProvider3();
-            var waveOut3 = new WaveOutEvent();
-            waveOut3.Init(waveProvider3);
-            waveOut3.Play();
 
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
 
@@ -985,28 +956,6 @@ namespace gdi2
 
             stopwatch.Restart();
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
-            while (stopwatch.ElapsedMilliseconds < duration)
-            {
-                IntPtr hdc = GetDC(IntPtr.Zero);
-
-                float time = stopwatch.ElapsedMilliseconds / 300.0f;
-                int offset = (int)(Math.Sin(time) * 100);
-
-                // Moving pattern overlay
-                uint color = rndclr[(int)(time) % rndclr.Length];
-                IntPtr brush = CreateSolidBrush(color);
-                SelectObject(hdc, brush);
-
-                // Animated diagonal bars
-                for (int i = 0; i < x + y; i += 50)
-                {
-                    PatBlt(hdc, i + offset, 0, 20, y, TernaryRasterOperations.PATINVERT);
-                }
-
-                DeleteObject(brush);
-                ReleaseDC(IntPtr.Zero, hdc);
-                Thread.Sleep(1);
-            }
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
@@ -1061,25 +1010,9 @@ namespace gdi2
             stopwatch.Restart();
             // Restore the original desktop image
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
-            while (stopwatch.ElapsedMilliseconds < duration)
-            {
-                r = new Random();
-                IntPtr hdc = GetDC(IntPtr.Zero);
-
-                byte[] bits = { 0x80, 0x01, 0x80, 0x01, 0x80, 0x01, 0xf8, 0x1f, 0x88, 0x11, 0x88, 0x11, 0x88, 0x11, 0xff, 0xff, 0xff, 0xff, 0x88, 0x11, 0x88, 0x11, 0x88, 0x11, 0xf8, 0x1f, 0x80, 0x01, 0x80, 0x01, 0x80, 0x01};
-                IntPtr bitmap = CreateBitmap(16, 16, 1, 1, bits);
-                IntPtr brush = CreatePatternBrush(bitmap);
-                SetBkColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
-                SelectObject(hdc, brush);
-                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
-                DeleteObject(bitmap);
-                DeleteObject(brush);
-                DeleteDC(hdc);
-            }
-
-            BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
-            waveOut3.Stop();
-            waveOut3.Dispose();
+            
+            waveOut2.Stop();
+            waveOut2.Dispose();
             var waveProvider4 = new BytebeatWaveProvider4();
             var waveOut4 = new WaveOutEvent();
             waveOut4.Init(waveProvider4);
