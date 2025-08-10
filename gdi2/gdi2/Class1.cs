@@ -1036,7 +1036,7 @@ namespace gdi2
         public static void Main(string[] args)
         {
             SetProcessDPIAware();
-
+            // command line arguments to control the effect
             if (args.Length > 0)
             {
                 switch (args[0])
@@ -1073,6 +1073,8 @@ namespace gdi2
 
             TunnelEffect();
 
+            MeltingEffect();
+
             MeltingIconEffect();
 
             waveOut.Stop();
@@ -1083,6 +1085,8 @@ namespace gdi2
             waveOut2.Play();
 
             TextSpamSolid();
+
+            TextSpamBW();
 
             HatchBrush();
 
