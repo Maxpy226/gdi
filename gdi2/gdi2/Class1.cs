@@ -1041,8 +1041,6 @@ namespace gdi2
             stopwatch.Restart();
             IntPtr hdc = GetDC(IntPtr.Zero);
 
-            
-
             // Capture the original screen
             IntPtr memDC = CreateCompatibleDC(hdc);
             IntPtr bitmap = CreateCompatibleBitmap(hdc, x, y);
@@ -1074,7 +1072,12 @@ namespace gdi2
                 }
                 screenOffset += scrollSpeed;  // MOVED OUTSIDE THE FOR LOOP
                 if (screenOffset >= y) screenOffset = 0;
-                
+
+                GetCursorPos(out mousepos);
+                int offsetX = r.Next(-50, 50);
+                int offsetY = r.Next(-50, 50);
+                SetCursorPos(mousepos.X + offsetX, mousepos.Y + offsetY);
+
                 GetCursorPos(out mousepos);
                 DrawIcon(hdc, mousepos.X - 16, mousepos.Y - 16, drawicon);
                 DeleteObject(drawicon);
