@@ -1067,7 +1067,7 @@ namespace gdi2
 
                         // Odd screens: random color
                         SelectObject(hdc, brush);
-                        PatBlt(hdc, 0, yPos, x, y, TernaryRasterOperations.PATINVERT);
+                        PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
                         DeleteObject(brush);
 
                     }
