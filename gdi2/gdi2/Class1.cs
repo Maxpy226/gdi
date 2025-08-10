@@ -1063,7 +1063,7 @@ namespace gdi2
                 {
                    int yPos = (screenNum * y) - screenOffset;
 
-                    if (yPos > -y && yPos < x)
+                    if (yPos > -y && yPos < y)
                     {
                         BitBlt(hdc, yPos, 0, x, y, memDC, 0, 0, TernaryRasterOperations.SRCCOPY);
                         SelectObject(hdc, brush);
