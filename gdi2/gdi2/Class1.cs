@@ -1064,18 +1064,12 @@ namespace gdi2
 
                     if (yPos > -y && yPos < y)  // Changed to check y bounds
                     {
-                        if (screenNum % 2 == 0)
-                        {
-                            // Even screens: original desktop
-                            BitBlt(hdc, 0, yPos, x, y, memDC, 0, 0, TernaryRasterOperations.SRCCOPY);
-                        }
-                        else
-                        {
-                            // Odd screens: random color
-                            SelectObject(hdc, brush);
-                            PatBlt(hdc, 0, yPos, x, y, TernaryRasterOperations.PATINVERT);
-                            DeleteObject(brush);
-                        }
+
+                        // Odd screens: random color
+                        SelectObject(hdc, brush);
+                        PatBlt(hdc, 0, yPos, x, y, TernaryRasterOperations.PATINVERT);
+                        DeleteObject(brush);
+
                     }
                 }
                 screenOffset += scrollSpeed;  // MOVED OUTSIDE THE FOR LOOP
