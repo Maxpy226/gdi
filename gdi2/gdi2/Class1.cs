@@ -787,7 +787,7 @@ namespace gdi2
         }
         static void TunnelEffect()
         {
-
+            stopwatch.Start();
             // Copy desktop area into hBitmap
             BitBlt(hdcMem, 0, 0, width, height, hdcDesktop, left, top, TernaryRasterOperations.SRCCOPY);
 
@@ -1031,19 +1031,11 @@ namespace gdi2
                 Thread.Sleep(20);
             }
         }
-        
-        static void SetDpiAware()
-        {
-            // Set the process DPI awareness to system DPI aware
-            if (Environment.OSVersion.Version.Major >= 6)
-            {
-                SetProcessDPIAware();
-            }
-        }
+       
 
         public static void Main(string[] args)
         {
-            SetDpiAware();
+            SetProcessDPIAware();
             // command line arguments to control the effect
             if (args.Length > 0)
             {
@@ -1073,7 +1065,6 @@ namespace gdi2
                 }
             }
             //main 
-            stopwatch.Start();
             var waveProvider = new BytebeatWaveProvider();
             var waveOut = new WaveOutEvent();
             waveOut.Init(waveProvider);
