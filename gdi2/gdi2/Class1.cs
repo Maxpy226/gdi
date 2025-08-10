@@ -1074,7 +1074,7 @@ namespace gdi2
                 screenOffset += scrollSpeed;  // MOVED OUTSIDE THE FOR LOOP
                 if (screenOffset >= x) screenOffset = 0;
                 DeleteObject(brush);
-                Thread.Sleep(1);
+                Thread.Sleep(20);
             }
 
             // Cleanup OUTSIDE the while loop
