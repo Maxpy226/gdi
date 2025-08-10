@@ -1061,13 +1061,13 @@ namespace gdi2
                 // Draw multiple "screens" scrolling horizontally
                 for (int screenNum = -1; screenNum <= 2; screenNum++)
                 {
-                    int xPos = (screenNum * y) - screenOffset;
+                   int yPos = (screenNum * y) - screenOffset;
 
-                    if (xPos > -y && xPos < y)
+                    if (yPos > -y && yPos < x)
                     {
-                        BitBlt(hdc, xPos, 0, x, y, memDC, 0, 0, TernaryRasterOperations.SRCCOPY);
+                        BitBlt(hdc, yPos, 0, x, y, memDC, 0, 0, TernaryRasterOperations.SRCCOPY);
                         SelectObject(hdc, brush);
-                        PatBlt(hdc, xPos, 0, x, y, TernaryRasterOperations.PATINVERT);
+                        PatBlt(hdc, yPos, 0, x, y, TernaryRasterOperations.PATINVERT);
                     }
                 }
 
