@@ -787,7 +787,6 @@ namespace gdi2
         }
         static void TunnelEffect()
         {
-            stopwatch.Start();
             // Copy desktop area into hBitmap
             BitBlt(hdcMem, 0, 0, width, height, hdcDesktop, left, top, TernaryRasterOperations.SRCCOPY);
 
@@ -817,6 +816,7 @@ namespace gdi2
         
         static void MeltingEffect()
         {
+            stopwatch.Start();
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
 
             while (stopwatch.ElapsedMilliseconds < duration)
