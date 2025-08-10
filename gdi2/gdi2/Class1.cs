@@ -1048,7 +1048,6 @@ namespace gdi2
             IntPtr bitmap = CreateCompatibleBitmap(hdc, x, y);
             SelectObject(memDC, bitmap);
             BitBlt(memDC, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
-
             int scrollSpeed = 200;
             int screenOffset = 0;
 
@@ -1061,15 +1060,24 @@ namespace gdi2
                 // Draw multiple "screens" scrolling horizontally
                 for (int screenNum = -1; screenNum <= 2; screenNum++)
                 {
-                   int yPos = (screenNum * y) - screenOffset;
+                    int yPos = (screenNum * y) - screenOffset;
 
-                    if (yPos > -y && yPos < y)
+                    if (yPos > -y && yPos < y)  // Changed to check y bounds
                     {
-                        SelectObject(hdc, brush);
-                        PatBlt(hdc, yPos, 0, x, y, TernaryRasterOperations.PATCOPY);
+                        if (screenNum % 2 == 0)
+                        {
+                            // Even screens: original desktop
+                            BitBlt(hdc, 0, yPos, x, y, memDC, 0, 0, TernaryRasterOperations.SRCCOPY);
+                        }
+                        else
+                        {
+                            // Odd screens: random color
+                            SelectObject(hdc, brush);
+                            PatBlt(hdc, 0, yPos, x, y, TernaryRasterOperations.PATCOPY);  // Changed to yPos
+                            DeleteObject(brush);
+                        }
                     }
                 }
-
                 screenOffset += scrollSpeed;  // MOVED OUTSIDE THE FOR LOOP
                 if (screenOffset >= y) screenOffset = 0;
                 DeleteObject(brush);
@@ -1079,7 +1087,7 @@ namespace gdi2
             // Cleanup OUTSIDE the while loop
             DeleteObject(bitmap);
             DeleteDC(memDC);
-            ReleaseDC(IntPtr.Zero, hdc);  // Use ReleaseDC, not DeleteDC
+            DeleteDC(hdc);
         }
         public static void Main(string[] args)
         {
