@@ -806,7 +806,6 @@ namespace gdi2
             }
 
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
-
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             var duration = 20000;
             while (stopwatch.ElapsedMilliseconds < duration)
@@ -827,6 +826,8 @@ namespace gdi2
             stopwatch.Restart();
 
 
+
+
             // Icon constants
             const int IDI_ERROR = 32513;
             const int IDI_HAND = 32513;    // Same as IDI_ERROR
@@ -838,7 +839,6 @@ namespace gdi2
 
             System.Drawing.Point startPos;
             GetCursorPos(out startPos);
-
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
@@ -878,6 +878,8 @@ namespace gdi2
                 ReleaseDC(IntPtr.Zero, hdc);
                 Thread.Sleep(20);
             }
+            
+            
             waveOut.Stop();
             waveOut.Dispose();
             var waveProvider2 = new BytebeatWaveProvider2();
@@ -911,6 +913,7 @@ namespace gdi2
                 DeleteDC(hdc);
                 Thread.Sleep(50);
             }
+
             stopwatch.Restart();
             string text2 = "darkmatter.exe";
             uint[] blackwhite = { 0x000000, 0xFFFFFF };
@@ -938,14 +941,17 @@ namespace gdi2
             }
 
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
-
             stopwatch.Restart();
-
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
                 IntPtr hatchbrush = CreateHatchBrush(r.Next(8), 0);
+                IntPtr mhdc = CreateCompatibleDC(hdc);
+                IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
+                IntPtr holdbit = SelectObject(mhdc, hbit);
+                int randsec = r.Next(x);
+                BitBlt(hdc, randsec, r.Next(-8, 8), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
                 SetBkColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
                 SelectObject(hdc, hatchbrush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
@@ -955,25 +961,6 @@ namespace gdi2
             }
 
             stopwatch.Restart();
-            BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
-            while (stopwatch.ElapsedMilliseconds < duration)
-            {
-                r = new Random();
-                IntPtr hdc = GetDC(IntPtr.Zero);
-                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
-                IntPtr mhdc = CreateCompatibleDC(hdc);
-                IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
-                IntPtr holdbit = SelectObject(mhdc, hbit);
-                int randsec = r.Next(x);
-                BitBlt(hdc, randsec, r.Next(-8, 8), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
-                SelectObject(hdc, brush);
-                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
-                DeleteObject(brush);
-                DeleteDC(hdc);
-            }
-
-            stopwatch.Restart();
-
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
@@ -1007,6 +994,7 @@ namespace gdi2
                 DeleteDC(mhdc);
                 DeleteDC(hdc);
             }
+            
             stopwatch.Restart();
             // Restore the original desktop image
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
