@@ -1064,7 +1064,7 @@ namespace gdi2
 
                     if (yPos > -y && yPos < y)  // Changed to check y bounds
                     {
-
+                        BitBlt(hdc, 0, yPos, x, y, memDC, 0, 0, TernaryRasterOperations.SRCCOPY);
                         // Odd screens: random color
                         SelectObject(hdc, brush);
                         PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
