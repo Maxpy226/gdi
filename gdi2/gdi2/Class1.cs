@@ -1031,7 +1031,58 @@ namespace gdi2
                 Thread.Sleep(20);
             }
         }
-       
+
+        static void MultiScreenScrollEffect()
+        {
+            stopwatch.Restart();
+            IntPtr hdc = GetDC(IntPtr.Zero);
+
+            // Capture the original screen
+            IntPtr memDC = CreateCompatibleDC(hdc);
+            IntPtr bitmap = CreateCompatibleBitmap(hdc, x, y);
+            SelectObject(memDC, bitmap);
+            BitBlt(memDC, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
+
+            int scrollSpeed = 5;  // Pixels per frame
+            int screenOffset = 0;
+
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                // Clear screen
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.BLACKNESS);
+
+                // Draw multiple "screens" scrolling horizontally
+                for (int screenNum = -1; screenNum <= 2; screenNum++)  // 4 screens visible
+                {
+                    int xPos = (screenNum * x) - screenOffset;
+
+                    // Only draw if screen is visible
+                    if (xPos > -x && xPos < x)
+                    {
+                        if (screenNum % 2 == 0)
+                        {
+                            // Even screens: show original desktop
+                            BitBlt(hdc, xPos, 0, x, y, memDC, 0, 0, TernaryRasterOperations.SRCCOPY);
+                        }
+                        else
+                        {
+                            // Odd screens: show inverted or colored version
+                            BitBlt(hdc, xPos, 0, x, y, memDC, 0, 0, TernaryRasterOperations.NOTSRCCOPY);
+                        }
+                    }
+                }
+
+                screenOffset += scrollSpeed;
+                if (screenOffset >= x) screenOffset = 0;  // Loop
+
+                Thread.Sleep(20);  // Control speed
+            }
+
+            // Cleanup
+            DeleteObject(bitmap);
+            DeleteDC(memDC);
+            
+        }
 
         public static void Main(string[] args)
         {
@@ -1051,7 +1102,7 @@ namespace gdi2
                         TextSpamSolid();
                         return;
                     case "textspambw":
-                        TextSpamSolid();
+                        TextSpamBW();
                         return;
                     case "hatchbrush":
                         HatchBrush();
@@ -1061,6 +1112,9 @@ namespace gdi2
                         return;
                     case "rndiconspam":
                         RndIconSpam();
+                        return;
+                    case "scroll":
+                        MultiScreenScrollEffect();
                         return;
                 }
             }
@@ -1099,6 +1153,8 @@ namespace gdi2
             waveOut4.Play();
 
             RndIconSpam();
+
+            MultiScreenScrollEffect();
 
         }
     }
