@@ -1040,10 +1040,11 @@ namespace gdi2
             // Capture the original screen
             IntPtr memDC = CreateCompatibleDC(hdc);
             IntPtr bitmap = CreateCompatibleBitmap(hdc, x, y);
+            IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]); // Black brush for clearing
             SelectObject(memDC, bitmap);
             BitBlt(memDC, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
 
-            int scrollSpeed = 5;  // Pixels per frame
+            int scrollSpeed = 20;  // Pixels per frame
             int screenOffset = 0;
 
             while (stopwatch.ElapsedMilliseconds < duration)
@@ -1059,31 +1060,23 @@ namespace gdi2
                     // Only draw if screen is visible
                     if (xPos > -x && xPos < x)
                     {
-                        if (screenNum % 2 == 0)
-                        {
-                            // Even screens: show original desktop
-                            BitBlt(hdc, xPos, 0, x, y, memDC, 0, 0, TernaryRasterOperations.SRCCOPY);
-                        }
-                        else
-                        {
-                            // Odd screens: show inverted or colored version
-                            BitBlt(hdc, xPos, 0, x, y, memDC, 0, 0, TernaryRasterOperations.NOTSRCCOPY);
-                        }
+                        SelectObject(hdc, brush);
+                        PatBlt(hdc, xPos, 0, x, y, TernaryRasterOperations.PATINVERT);
                     }
+
+                    screenOffset += scrollSpeed;
+                    if (screenOffset >= x) screenOffset = 0;  // Loop
+
+                    Thread.Sleep(20);  // Control speed
                 }
 
-                screenOffset += scrollSpeed;
-                if (screenOffset >= x) screenOffset = 0;  // Loop
-
-                Thread.Sleep(20);  // Control speed
+                // Cleanup
+                DeleteObject(bitmap);
+                DeleteDC(memDC);
+                DeleteObject(brush);
+                DeleteDC(hdc);
             }
-
-            // Cleanup
-            DeleteObject(bitmap);
-            DeleteDC(memDC);
-            
         }
-
         public static void Main(string[] args)
         {
             SetProcessDPIAware();
