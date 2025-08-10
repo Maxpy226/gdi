@@ -20,6 +20,5 @@ C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\NAudio.WinMM.xml
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\System.Security.AccessControl.xml
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\System.Security.Principal.Windows.xml
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.csproj.Up2Date
-C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.exe.config
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.csproj.Fody.CopyLocal.cache
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.csproj.Fody.RuntimeCopyLocal.cache
