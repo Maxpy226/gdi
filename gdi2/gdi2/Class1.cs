@@ -1046,6 +1046,7 @@ namespace gdi2
             // Capture the original screen
             IntPtr memDC = CreateCompatibleDC(hdc);
             IntPtr bitmap = CreateCompatibleBitmap(hdc, x, y);
+            IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
             SelectObject(memDC, bitmap);
             BitBlt(memDC, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
 
@@ -1064,12 +1065,8 @@ namespace gdi2
 
                     if (xPos > -x && xPos < x)
                     {
-                        PatBlt(hdc, xPos, 0, x, y, TernaryRasterOperations.SRCCOPY);
-                    }
-                    else
-                    {
-                        // Draw the captured bitmap if the screen is out of bounds
-                        BitBlt(hdc, xPos, 0, x, y, memDC, 0, 0, TernaryRasterOperations.NOTSRCCOPY);
+                        SelectObject(memDC, brush);
+                        PatBlt(memDC, xPos, 0, x, y, TernaryRasterOperations.PATINVERT);
                     }
                 }
 
@@ -1082,6 +1079,7 @@ namespace gdi2
             // Cleanup OUTSIDE the while loop
             DeleteObject(bitmap);
             DeleteDC(memDC);
+            DeleteObject(brush);
             ReleaseDC(IntPtr.Zero, hdc);  // Use ReleaseDC, not DeleteDC
         }
         public static void Main(string[] args)
