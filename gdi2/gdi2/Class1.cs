@@ -1034,14 +1034,8 @@ namespace gdi2
 
         static void ScrollEffect()
         {
-            // Make sure these are initialized first!
-            if (stopwatch == null) stopwatch = new Stopwatch();
-            if (r == null) r = new Random();
-
             stopwatch.Restart();
             IntPtr hdc = GetDC(IntPtr.Zero);
-
-            
 
             // Capture the original screen
             IntPtr memDC = CreateCompatibleDC(hdc);
@@ -1049,38 +1043,47 @@ namespace gdi2
             SelectObject(memDC, bitmap);
             BitBlt(memDC, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
 
-            int scrollSpeed = 200;
+            int scrollSpeed = 200;  // Pixels per frame
             int screenOffset = 0;
 
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 // Clear screen
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.BLACKNESS);
-                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
 
-                // Draw multiple "screens" scrolling horizontally
+                // Draw multiple "screens" scrolling TOP to BOTTOM
                 for (int screenNum = -1; screenNum <= 2; screenNum++)
                 {
-                   int yPos = (screenNum * y) - screenOffset;
+                    int yPos = (screenNum * y) - screenOffset;  // Changed to yPos and y
 
-                    if (yPos > -y && yPos < y)
+                    if (yPos > -y && yPos < y)  // Changed to check y bounds
                     {
-                        BitBlt(hdc, yPos, 0, x, y, memDC, 0, 0, TernaryRasterOperations.SRCCOPY);
-                        SelectObject(hdc, brush);
-                        PatBlt(hdc, yPos, 0, x, y, TernaryRasterOperations.PATINVERT);
+                        if (screenNum % 2 == 0)
+                        {
+                            // Even screens: original desktop
+                            BitBlt(hdc, 0, yPos, x, y, memDC, 0, 0, TernaryRasterOperations.SRCCOPY);
+                        }
+                        else
+                        {
+                            // Odd screens: random color
+                            IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
+                            SelectObject(hdc, brush);
+                            PatBlt(hdc, 0, yPos, x, y, TernaryRasterOperations.PATCOPY);  // Changed to yPos
+                            DeleteObject(brush);
+                        }
                     }
                 }
 
-                screenOffset += scrollSpeed;  // MOVED OUTSIDE THE FOR LOOP
-                if (screenOffset >= y) screenOffset = 0;
-                DeleteObject(brush);
-                Thread.Sleep(20);
+                screenOffset += scrollSpeed;  // Move down
+                if (screenOffset >= y) screenOffset = 0;  // Reset when past screen height
+
+                Thread.Sleep(50);
             }
 
-            // Cleanup OUTSIDE the while loop
+            // Cleanup
             DeleteObject(bitmap);
             DeleteDC(memDC);
-            ReleaseDC(IntPtr.Zero, hdc);  // Use ReleaseDC, not DeleteDC
+            ReleaseDC(IntPtr.Zero, hdc);
         }
         public static void Main(string[] args)
         {
