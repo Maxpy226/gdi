@@ -690,7 +690,6 @@ namespace gdi2
             public byte rgbRed;
             public byte rgbReserved;
         }
-        
         static Random r;
         static int x = Screen.PrimaryScreen.Bounds.Width;
         static int y = Screen.PrimaryScreen.Bounds.Height;
@@ -707,7 +706,7 @@ namespace gdi2
         static IntPtr oldBitmap = SelectObject(hdcMem, hBitmap);
         static Stopwatch stopwatch = new Stopwatch();
         static int duration = 20000; // Duration in milliseconds for the effect
-
+        
         // Icon constants
         const int IDI_ERROR = 32513;
         const int IDI_HAND = 32513;    // Same as IDI_ERROR
@@ -1033,10 +1032,18 @@ namespace gdi2
             }
         }
         
+        static void SetDpiAware()
+        {
+            // Set the process DPI awareness to system DPI aware
+            if (Environment.OSVersion.Version.Major >= 6)
+            {
+                SetProcessDPIAware();
+            }
+        }
+
         public static void Main(string[] args)
         {
-            SetProcessDPIAware();
-       
+            SetDpiAware();
             // command line arguments to control the effect
             if (args.Length > 0)
             {
@@ -1066,6 +1073,7 @@ namespace gdi2
                 }
             }
             //main 
+            stopwatch.Start();
             var waveProvider = new BytebeatWaveProvider();
             var waveOut = new WaveOutEvent();
             waveOut.Init(waveProvider);

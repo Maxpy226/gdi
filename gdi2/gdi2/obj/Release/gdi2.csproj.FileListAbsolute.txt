@@ -20,6 +20,7 @@ C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\NAudio.WinMM.xml
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\System.Security.AccessControl.xml
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\System.Security.Principal.Windows.xml
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.csproj.Up2Date
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.exe.config
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\Costura.dll
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\Microsoft.Win32.Registry.dll
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\NAudio.Asio.dll
@@ -33,4 +34,3 @@ C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\System.Security.AccessCont
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\System.Security.Principal.Windows.dll
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\Costura.pdb
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\Costura.xml
-C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.exe.config
