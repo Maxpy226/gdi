@@ -1046,24 +1046,24 @@ namespace gdi2
             // Capture the original screen
             IntPtr memDC = CreateCompatibleDC(hdc);
             IntPtr bitmap = CreateCompatibleBitmap(hdc, x, y);
+            IntPtr drawicon = LoadIcon(IntPtr.Zero, (IntPtr)IDI_ERROR);
             SelectObject(memDC, bitmap);
             BitBlt(memDC, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
-            int scrollSpeed = 200;
+            int scrollSpeed = 220;
             int screenOffset = 0;
-
+            Point mousepos;
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 // Clear screen
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.BLACKNESS);
                 IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
-
                 // Draw multiple "screens" scrolling horizontally
                 for (int screenNum = -1; screenNum <= 2; screenNum++)
                 {
                     int yPos = (screenNum * y) - screenOffset;
 
                     if (yPos > -y && yPos < y)  // Changed to check y bounds
-                    {
+                    { 
                         BitBlt(hdc, 0, yPos, x, y, memDC, 0, 0, TernaryRasterOperations.SRCCOPY);
                         // Odd screens: random color
                         SelectObject(hdc, brush);
@@ -1074,6 +1074,10 @@ namespace gdi2
                 }
                 screenOffset += scrollSpeed;  // MOVED OUTSIDE THE FOR LOOP
                 if (screenOffset >= y) screenOffset = 0;
+                
+                GetCursorPos(out mousepos);
+                DrawIcon(hdc, mousepos.X - 16, mousepos.Y - 16, drawicon);
+                DeleteObject(drawicon);
                 DeleteObject(brush);
                 Thread.Sleep(20);
             }
