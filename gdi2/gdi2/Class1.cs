@@ -1035,6 +1035,7 @@ namespace gdi2
         
         public static void Main(string[] args)
         {
+            stopwatch.Start();
             SetProcessDPIAware();
             // command line arguments to control the effect
             if (args.Length > 0)
@@ -1062,7 +1063,6 @@ namespace gdi2
                     case "rndiconspam":
                         RndIconSpam();
                         return;
-
                 }
             }
             //main 
