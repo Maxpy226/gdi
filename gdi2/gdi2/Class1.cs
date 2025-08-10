@@ -1035,8 +1035,8 @@ namespace gdi2
         
         public static void Main(string[] args)
         {
-            stopwatch.Start();
             SetProcessDPIAware();
+            stopwatch.Start();
             // command line arguments to control the effect
             if (args.Length > 0)
             {
