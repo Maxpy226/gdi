@@ -1040,7 +1040,7 @@ namespace gdi2
             // Capture the original screen
             IntPtr memDC = CreateCompatibleDC(hdc);
             IntPtr bitmap = CreateCompatibleBitmap(hdc, x, y);
-            IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]); // Black brush for clearing
+            IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
             SelectObject(memDC, bitmap);
             BitBlt(memDC, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
 

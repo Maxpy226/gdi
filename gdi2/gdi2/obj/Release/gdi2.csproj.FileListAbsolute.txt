@@ -22,3 +22,4 @@ C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\bin\Release\System.Security.Principal.
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.csproj.Up2Date
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.csproj.Fody.CopyLocal.cache
 C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.csproj.Fody.RuntimeCopyLocal.cache
+C:\Users\abc\Desktop\coding\gdi\gdi2\gdi2\obj\Release\gdi2.exe.config
