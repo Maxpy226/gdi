@@ -7,14 +7,14 @@
     <framework targetVersion="4.8" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="gdi2.exe.manifest" size="11021">
+    <dependentAssembly dependencyType="install" codebase="gdi2.exe.manifest" size="11022">
       <assemblyIdentity name="gdi2.exe" version="1.0.0.0" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>h89WOoSaQauMNfNnPiTVgLxhMoBmBk+bsZSWG9S6tXs=</dsig:DigestValue>
+        <dsig:DigestValue>ulIPC9Gx13wJ8bnk4jtug1E6/y2cPORrHQHbjvfGVeI=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

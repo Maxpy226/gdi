@@ -1065,7 +1065,7 @@ namespace gdi2
 
                 }
             }
-
+            //main 
             var waveProvider = new BytebeatWaveProvider();
             var waveOut = new WaveOutEvent();
             waveOut.Init(waveProvider);
