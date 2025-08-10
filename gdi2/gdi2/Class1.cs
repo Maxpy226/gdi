@@ -1048,12 +1048,12 @@ namespace gdi2
             IntPtr bitmap = CreateCompatibleBitmap(hdc, x, y);
             IntPtr drawicon = LoadIcon(IntPtr.Zero, (IntPtr)IDI_ERROR);
             SelectObject(memDC, bitmap);
-            BitBlt(memDC, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
             int scrollSpeed = 220;
             int screenOffset = 0;
             Point mousepos;
             while (stopwatch.ElapsedMilliseconds < duration)
             {
+                BitBlt(memDC, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
                 // Clear screen
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.BLACKNESS);
                 IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
