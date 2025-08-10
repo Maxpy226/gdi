@@ -1046,17 +1046,17 @@ namespace gdi2
             // Capture the original screen
             IntPtr memDC = CreateCompatibleDC(hdc);
             IntPtr bitmap = CreateCompatibleBitmap(hdc, x, y);
-            IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
             SelectObject(memDC, bitmap);
             BitBlt(memDC, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
 
             int scrollSpeed = 20;
-            int screenOffset = 0;
+            int screenOffset = 5;
 
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 // Clear screen
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.BLACKNESS);
+                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
 
                 // Draw multiple "screens" scrolling horizontally
                 for (int screenNum = -1; screenNum <= 2; screenNum++)
@@ -1073,14 +1073,13 @@ namespace gdi2
 
                 screenOffset += scrollSpeed;  // MOVED OUTSIDE THE FOR LOOP
                 if (screenOffset >= x) screenOffset = 0;
-
+                DeleteObject(brush);
                 Thread.Sleep(20);
             }
 
             // Cleanup OUTSIDE the while loop
             DeleteObject(bitmap);
             DeleteDC(memDC);
-            DeleteObject(brush);
             ReleaseDC(IntPtr.Zero, hdc);  // Use ReleaseDC, not DeleteDC
         }
         public static void Main(string[] args)
