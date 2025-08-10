@@ -1049,8 +1049,8 @@ namespace gdi2
             SelectObject(memDC, bitmap);
             BitBlt(memDC, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
 
-            int scrollSpeed = 100;
-            int screenOffset = 15;
+            int scrollSpeed = 1000;
+            int screenOffset = 0;
 
             while (stopwatch.ElapsedMilliseconds < duration)
             {
