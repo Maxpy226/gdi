@@ -8,6 +8,8 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Drawing;
 using NAudio.Wave;
+using System.Diagnostics;
+using System.Runtime.Remoting.Messaging;
 
 namespace gdi2
 {
@@ -688,7 +690,32 @@ namespace gdi2
             public byte rgbRed;
             public byte rgbReserved;
         }
+        
+        static Random r;
+        static int x = Screen.PrimaryScreen.Bounds.Width;
+        static int y = Screen.PrimaryScreen.Bounds.Height;
+        static int left = Screen.PrimaryScreen.Bounds.Left, top = Screen.PrimaryScreen.Bounds.Top, right = Screen.PrimaryScreen.Bounds.Right, bottom = Screen.PrimaryScreen.Bounds.Bottom;
+        static POINT[] lppoint = new POINT[3];
 
+        static uint[] rndclr = { 0x2AFA00, 0xFA0000, 0xFA00D4, 0x0057FA };
+        
+        static IntPtr hdcDesktop = GetDC(IntPtr.Zero);
+        static IntPtr hdcMem = CreateCompatibleDC(hdcDesktop);
+        static int width = right - left;
+        static int height = bottom - top;
+        static IntPtr hBitmap = CreateCompatibleBitmap(hdcDesktop, width, height);
+        static IntPtr oldBitmap = SelectObject(hdcMem, hBitmap);
+        static Stopwatch stopwatch = new Stopwatch();
+        static int duration = 20000; // Duration in milliseconds for the effect
+
+        // Icon constants
+        const int IDI_ERROR = 32513;
+        const int IDI_HAND = 32513;    // Same as IDI_ERROR
+        const int IDI_WARNING = 32515;
+        const int IDI_QUESTION = 32514;
+
+        // Use the actual integer values, not the constant names
+        static int[] rndicons = { IDI_ERROR, IDI_HAND, IDI_WARNING, IDI_QUESTION };
         public class BytebeatWaveProvider : IWaveProvider
         {
             public WaveFormat WaveFormat { get; }
@@ -733,7 +760,7 @@ namespace gdi2
                 return count;
             }
         }
-        public class BytebeatWaveProvider4 : IWaveProvider
+        public class BytebeatWaveProvider4 :  IWaveProvider
         {
             public WaveFormat WaveFormat { get; }
             private int t = 0;
@@ -759,30 +786,8 @@ namespace gdi2
                 return count;
             }
         }
-
-
-        public static void Main()
+        static void TunnelEffect()
         {
-            Random r;
-            SetProcessDPIAware();
-            int x = Screen.PrimaryScreen.Bounds.Width;
-            int y = Screen.PrimaryScreen.Bounds.Height;
-            int left = Screen.PrimaryScreen.Bounds.Left, top = Screen.PrimaryScreen.Bounds.Top, right = Screen.PrimaryScreen.Bounds.Right, bottom = Screen.PrimaryScreen.Bounds.Bottom;
-            POINT[] lppoint = new POINT[3];
-
-            uint[] rndclr = { 0x2AFA00, 0xFA0000, 0xFA00D4, 0x0057FA };
-
-            var waveProvider = new BytebeatWaveProvider();
-            var waveOut = new WaveOutEvent();
-            waveOut.Init(waveProvider);
-            waveOut.Play();
-
-            IntPtr hdcDesktop = GetDC(IntPtr.Zero);
-            IntPtr hdcMem = CreateCompatibleDC(hdcDesktop);
-            int width = right - left;
-            int height = bottom - top;
-            IntPtr hBitmap = CreateCompatibleBitmap(hdcDesktop, width, height);
-            IntPtr oldBitmap = SelectObject(hdcMem, hBitmap);
 
             // Copy desktop area into hBitmap
             BitBlt(hdcMem, 0, 0, width, height, hdcDesktop, left, top, TernaryRasterOperations.SRCCOPY);
@@ -809,10 +814,12 @@ namespace gdi2
                 DeleteDC(hdc);
 
             }
-
+        }
+        
+        static void MeltingEffect()
+        {
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            var duration = 20000;
+
             while (stopwatch.ElapsedMilliseconds < duration)
             {
                 r = new Random();
@@ -828,19 +835,12 @@ namespace gdi2
                 DeleteObject(brush);
                 DeleteDC(hdc);
             }
+        }
+
+        static void MeltingIconEffect()
+        {
             stopwatch.Restart();
 
-
-
-
-            // Icon constants
-            const int IDI_ERROR = 32513;
-            const int IDI_HAND = 32513;    // Same as IDI_ERROR
-            const int IDI_WARNING = 32515;
-            const int IDI_QUESTION = 32514;
-
-            // Use the actual integer values, not the constant names
-            int[] rndicons = { IDI_ERROR, IDI_HAND, IDI_WARNING, IDI_QUESTION };
 
             System.Drawing.Point startPos;
             GetCursorPos(out startPos);
@@ -883,14 +883,11 @@ namespace gdi2
                 ReleaseDC(IntPtr.Zero, hdc);
                 Thread.Sleep(20);
             }
-            
-            
-            waveOut.Stop();
-            waveOut.Dispose();
-            var waveProvider2 = new BytebeatWaveProvider2();
-            var waveOut2 = new WaveOutEvent();
-            waveOut2.Init(waveProvider2);
-            waveOut2.Play();
+        }
+          
+
+        static void TextSpamSolid()
+        {
             stopwatch.Restart();
             string[] text = { "darkmatter.exe", "darkmatter.exe has fucked your pc", "un3nown" };
             while (stopwatch.ElapsedMilliseconds < duration)
@@ -918,7 +915,9 @@ namespace gdi2
                 DeleteDC(hdc);
                 Thread.Sleep(50);
             }
-
+        }
+        static void TextSpamBW()
+        {
             stopwatch.Restart();
             string text2 = "darkmatter.exe";
             uint[] blackwhite = { 0x000000, 0xFFFFFF };
@@ -944,7 +943,9 @@ namespace gdi2
                 DeleteDC(hdc);
                 Thread.Sleep(50);
             }
-
+        }
+        static void HatchBrush()
+        {
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
             stopwatch.Restart();
             while (stopwatch.ElapsedMilliseconds < duration)
@@ -964,7 +965,9 @@ namespace gdi2
                 DeleteDC(hdc);
                 Thread.Sleep(50);
             }
-
+        }
+        static void RadialBlur()
+        {
             stopwatch.Restart();
             while (stopwatch.ElapsedMilliseconds < duration)
             {
@@ -999,17 +1002,13 @@ namespace gdi2
                 DeleteDC(mhdc);
                 DeleteDC(hdc);
             }
-            
+        }
+        static void RndIconSpam()
+        {
             stopwatch.Restart();
             // Restore the original desktop image
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
-            
-            waveOut2.Stop();
-            waveOut2.Dispose();
-            var waveProvider4 = new BytebeatWaveProvider4();
-            var waveOut4 = new WaveOutEvent();
-            waveOut4.Init(waveProvider4);
-            waveOut4.Play();
+
             stopwatch.Restart();
 
             while (stopwatch.ElapsedMilliseconds < duration)
@@ -1023,7 +1022,7 @@ namespace gdi2
 
                 int rndx = r.Next(x);
                 int rndy = r.Next(y);
-                
+
                 DrawIcon(hdc, rndx, rndy, randicon);
                 SelectObject(hdc, brush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
@@ -1032,6 +1031,71 @@ namespace gdi2
                 DeleteDC(hdc);
                 Thread.Sleep(20);
             }
+        }
+        
+        public static void Main(string[] args)
+        {
+            SetProcessDPIAware();
+
+            if (args.Length > 0)
+            {
+                switch (args[0])
+                {
+                    case "melter":
+                        MeltingEffect();
+                        return;
+                    case "meltericon":
+                        MeltingIconEffect();
+                        return;
+                    case "textspam":
+                        TextSpamSolid();
+                        return;
+                    case "textspambw":
+                        TextSpamSolid();
+                        return;
+                    case "hatchbrush":
+                        HatchBrush();
+                        return;
+                    case "radialblur":
+                        RadialBlur();
+                        return;
+                    case "rndiconspam":
+                        RndIconSpam();
+                        return;
+
+                }
+            }
+
+            var waveProvider = new BytebeatWaveProvider();
+            var waveOut = new WaveOutEvent();
+            waveOut.Init(waveProvider);
+            waveOut.Play();
+
+            TunnelEffect();
+
+            MeltingIconEffect();
+
+            waveOut.Stop();
+            waveOut.Dispose();
+            var waveProvider2 = new BytebeatWaveProvider2();
+            var waveOut2 = new WaveOutEvent();
+            waveOut2.Init(waveProvider2);
+            waveOut2.Play();
+
+            TextSpamSolid();
+
+            HatchBrush();
+
+            RadialBlur();
+
+            waveOut2.Stop();
+            waveOut2.Dispose();
+            var waveProvider4 = new BytebeatWaveProvider4();
+            var waveOut4 = new WaveOutEvent();
+            waveOut4.Init(waveProvider4);
+            waveOut4.Play();
+
+            RndIconSpam();
 
         }
     }
