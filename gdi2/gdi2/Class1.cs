@@ -1065,8 +1065,9 @@ namespace gdi2
 
                     if (xPos > -x && xPos < x)
                     {
-                        SelectObject(memDC, brush);
-                        PatBlt(memDC, xPos, 0, x, y, TernaryRasterOperations.PATINVERT);
+                        BitBlt(hdc, xPos, 0, x, y, memDC, 0, 0, TernaryRasterOperations.SRCCOPY);
+                        SelectObject(hdc, brush);
+                        PatBlt(hdc, xPos, 0, x, y, TernaryRasterOperations.PATINVERT);
                     }
                 }
 
