@@ -1049,8 +1049,8 @@ namespace gdi2
             SelectObject(memDC, bitmap);
             BitBlt(memDC, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
 
-            int scrollSpeed = 20;
-            int screenOffset = 5;
+            int scrollSpeed = 50;
+            int screenOffset = 10;
 
             while (stopwatch.ElapsedMilliseconds < duration)
             {
@@ -1074,7 +1074,7 @@ namespace gdi2
                 screenOffset += scrollSpeed;  // MOVED OUTSIDE THE FOR LOOP
                 if (screenOffset >= x) screenOffset = 0;
                 DeleteObject(brush);
-                Thread.Sleep(20);
+                Thread.Sleep(1);
             }
 
             // Cleanup OUTSIDE the while loop
