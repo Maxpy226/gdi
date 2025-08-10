@@ -1061,9 +1061,9 @@ namespace gdi2
                 // Draw multiple "screens" scrolling horizontally
                 for (int screenNum = -1; screenNum <= 2; screenNum++)
                 {
-                    int xPos = (screenNum * x) - screenOffset;
+                    int xPos = (screenNum * y) - screenOffset;
 
-                    if (xPos > -x && xPos < x)
+                    if (xPos > -y && xPos < y)
                     {
                         BitBlt(hdc, xPos, 0, x, y, memDC, 0, 0, TernaryRasterOperations.SRCCOPY);
                         SelectObject(hdc, brush);
@@ -1072,7 +1072,7 @@ namespace gdi2
                 }
 
                 screenOffset += scrollSpeed;  // MOVED OUTSIDE THE FOR LOOP
-                if (screenOffset >= x) screenOffset = 0;
+                if (screenOffset >= y) screenOffset = 0;
                 DeleteObject(brush);
                 Thread.Sleep(20);
             }
