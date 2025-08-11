@@ -705,7 +705,6 @@ namespace gdi2
         static IntPtr hBitmap = CreateCompatibleBitmap(hdcDesktop, width, height);
         static IntPtr oldBitmap = SelectObject(hdcMem, hBitmap);
         static Stopwatch stopwatch = new Stopwatch();
-        static int duration = 20000; // Duration in milliseconds for the effect
         
         // Icon constants
         const int IDI_ERROR = 32513;
@@ -814,7 +813,7 @@ namespace gdi2
             }
         }
         
-        static void MeltingEffect()
+        static void MeltingEffect(int duration)
         {
             stopwatch.Start();
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
@@ -836,7 +835,7 @@ namespace gdi2
             }
         }
 
-        static void MeltingIconEffect()
+        static void MeltingIconEffect(int duration)
         {
             stopwatch.Restart();
 
@@ -885,7 +884,7 @@ namespace gdi2
         }
           
 
-        static void TextSpamSolid()
+        static void TextSpamSolid(int duration)
         {
             stopwatch.Restart();
             string[] text = { "darkmatter.exe", "darkmatter.exe has fucked your pc", "un3nown" };
@@ -915,7 +914,7 @@ namespace gdi2
                 Thread.Sleep(50);
             }
         }
-        static void TextSpamBW()
+        static void TextSpamBW(int duration)
         {
             stopwatch.Restart();
             string text2 = "darkmatter.exe";
@@ -943,7 +942,7 @@ namespace gdi2
                 Thread.Sleep(50);
             }
         }
-        static void HatchBrush()
+        static void HatchBrush(int duration)
         {
             BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
             stopwatch.Restart();
@@ -969,7 +968,7 @@ namespace gdi2
                 Thread.Sleep(50);
             }
         }
-        static void RadialBlur()
+        static void RadialBlur(int duration)
         {
             stopwatch.Restart();
             while (stopwatch.ElapsedMilliseconds < duration)
@@ -1006,7 +1005,7 @@ namespace gdi2
                 DeleteDC(hdc);
             }
         }
-        static void RndIconSpam()
+        static void RndIconSpam(int duration)
         {
             stopwatch.Restart();
             // Restore the original desktop image
@@ -1036,7 +1035,7 @@ namespace gdi2
             }
         }
 
-        static void ScrollEffect()
+        static void ScrollEffect(int duration)
         {
             // Make sure these are initialized first!
             if (stopwatch == null) stopwatch = new Stopwatch();
@@ -1094,6 +1093,26 @@ namespace gdi2
             DeleteDC(memDC);
             DeleteDC(hdc);
         }
+        static void MelterExtreme(int duration)
+        {
+            stopwatch.Restart();
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                r = new Random();
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr mhdc = CreateCompatibleDC(hdc);
+                IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
+                IntPtr holdbit = SelectObject(mhdc, hbit);
+                int randsec = r.Next(x);
+                BitBlt(hdc, randsec, r.Next(-16, 16), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
+                DeleteObject(holdbit);
+                DeleteObject(hbit);
+                DeleteDC(mhdc);
+                DeleteDC(hdc);
+            }
+
+        }
+
         public static void Main(string[] args)
         {
             SetProcessDPIAware();
@@ -1103,28 +1122,31 @@ namespace gdi2
                 switch (args[0])
                 {
                     case "melter":
-                        MeltingEffect();
+                        MeltingEffect(20000);
                         return;
                     case "meltericon":
-                        MeltingIconEffect();
+                        MeltingIconEffect(20000);
                         return;
                     case "textspam":
-                        TextSpamSolid();
+                        TextSpamSolid(20000);
                         return;
                     case "textspambw":
-                        TextSpamBW();
+                        TextSpamBW(20000);
                         return;
                     case "hatchbrush":
-                        HatchBrush();
+                        HatchBrush(20000);
                         return;
                     case "radialblur":
-                        RadialBlur();
+                        RadialBlur(20000);
                         return;
                     case "rndiconspam":
-                        RndIconSpam();
+                        RndIconSpam(20000);
                         return;
                     case "scroll":
-                        ScrollEffect();
+                        ScrollEffect(20000);
+                        return;
+                    case "melterextreme":
+                        MelterExtreme(20000);
                         return;
                 }
             }
@@ -1136,9 +1158,9 @@ namespace gdi2
 
             TunnelEffect();
 
-            MeltingEffect();
+            MeltingEffect(20000);
 
-            MeltingIconEffect();
+            MeltingIconEffect(20000);
 
             waveOut.Stop();
             waveOut.Dispose();
@@ -1147,13 +1169,13 @@ namespace gdi2
             waveOut2.Init(waveProvider2);
             waveOut2.Play();
 
-            TextSpamSolid();
+            TextSpamSolid(20000);
 
-            TextSpamBW();
+            TextSpamBW(20000);
 
-            HatchBrush();
+            HatchBrush(20000);
 
-            RadialBlur();
+            RadialBlur(20000);
 
             waveOut2.Stop();
             waveOut2.Dispose();
@@ -1162,9 +1184,11 @@ namespace gdi2
             waveOut4.Init(waveProvider4);
             waveOut4.Play();
 
-            RndIconSpam();
+            RndIconSpam(13000);
 
-            ScrollEffect();
+            ScrollEffect(20000);
+
+            MelterExtreme(20000);
 
         }
     }
