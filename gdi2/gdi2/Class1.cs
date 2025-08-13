@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Drawing;
 using NAudio.Wave;
 using System.Diagnostics;
@@ -201,7 +202,11 @@ namespace gdi2
         [DllImport("gdi32.dll")]
         public static extern uint SetBkColor(IntPtr hdc, int crColor);
 
-        [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern int MessageBox(IntPtr hWnd, string text, string caption, int type);
+
+        [DllImport("gdi32.dll")]
         static extern IntPtr CreateFont(
             int nHeight,          // Height of font (in logical units)
             int nWidth,           // Width of font (0 = default)
@@ -758,26 +763,21 @@ namespace gdi2
                 return count;
             }
         }
-        public class BytebeatWaveProvider4 :  IWaveProvider
+        public class BytebeatWaveProvider3 : IWaveProvider
         {
             public WaveFormat WaveFormat { get; }
             private int t = 0;
 
-            public BytebeatWaveProvider4()
+            public BytebeatWaveProvider3()
             {
-                WaveFormat = new WaveFormat(32000, 8, 1); // 8kHz, 8-bit, mono
+                WaveFormat = new WaveFormat(11000, 8, 1); // 8kHz, 8-bit, mono
             }
 
             public int Read(byte[] buffer, int offset, int count)
             {
                 for (int i = 0; i < count; i++)
                 {
-                    int a = t & (t >> 6);
-                    int b = t | (t >> 8);
-                    int c = t | (t >> 7);
-                    int d = t | (t >> 9);
-                    int value = a + b + c + d;
-
+                    int value = t * (t >> 10 & 255 | t * 14 % 8);
                     buffer[offset + i] = (byte)(value & 255);
                     t++;
                 }
@@ -830,8 +830,12 @@ namespace gdi2
                 BitBlt(hdc, randsec, r.Next(-8, 8), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
                 SelectObject(hdc, brush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                SelectObject(mhdc, holdbit);
+                DeleteObject(hbit);
+                DeleteObject(holdbit);
                 DeleteObject(brush);
                 DeleteDC(hdc);
+                DeleteDC(mhdc);
             }
         }
 
@@ -858,11 +862,6 @@ namespace gdi2
                 SelectObject(hdc, brush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
 
-                // Randomly offset the cursor position
-                int offsetX = r.Next(-Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Width);
-                int offsetY = r.Next(-Screen.PrimaryScreen.Bounds.Height, Screen.PrimaryScreen.Bounds.Height);
-                SetCursorPos(startPos.X + offsetX, startPos.Y + offsetY);
-
                 // Get the NEW cursor position after moving it
                 Point mousePos;
                 GetCursorPos(out mousePos);
@@ -878,7 +877,6 @@ namespace gdi2
                 DeleteObject(hbit);
                 DeleteDC(mhdc);
                 DeleteObject(brush);
-                ReleaseDC(IntPtr.Zero, hdc);
                 Thread.Sleep(20);
             }
         }
@@ -968,43 +966,6 @@ namespace gdi2
                 Thread.Sleep(50);
             }
         }
-        static void RadialBlur(int duration)
-        {
-            stopwatch.Restart();
-            while (stopwatch.ElapsedMilliseconds < duration)
-            {
-                r = new Random();
-                IntPtr hdc = GetDC(IntPtr.Zero);
-                IntPtr mhdc = CreateCompatibleDC(hdc);
-                IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
-                IntPtr holdbit = SelectObject(mhdc, hbit);
-
-                if (r.Next(2) == 1)
-                {
-                    lppoint[0].X = (left + 30) + 0;
-                    lppoint[0].Y = (top - 30) + 0;
-                    lppoint[1].X = (right + 30) + 0;
-                    lppoint[1].Y = (top + 30) + 0;
-                    lppoint[2].X = (left - 30) + 0;
-                    lppoint[2].Y = (bottom - 30) + 0;
-                }
-                else
-                {
-                    lppoint[0].X = (left - 30) + 0;
-                    lppoint[0].Y = (top + 30) + 0;
-                    lppoint[1].X = (right - 30) + 0;
-                    lppoint[1].Y = (top - 30) + 0;
-                    lppoint[2].X = (left + 30) + 0;
-                    lppoint[2].Y = (bottom + 30) + 0;
-                }
-                PlgBlt(mhdc, lppoint, hdc, left, top, (right - left), (bottom - top), IntPtr.Zero, 0, 0);
-                AlphaBlend(hdc, 0, 0, x, y, mhdc, 0, 0, x, y, new BLENDFUNCTION(0, 0, 50, 0));
-                SelectObject(mhdc, holdbit);
-                DeleteObject(hbit);
-                DeleteDC(mhdc);
-                DeleteDC(hdc);
-            }
-        }
         static void RndIconSpam(int duration)
         {
             stopwatch.Restart();
@@ -1017,6 +978,8 @@ namespace gdi2
             {
                 r = new Random();
                 IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr pen = CreatePen(PenStyle.PS_SOLID, 1, rndclr[r.Next(rndclr.Length)]);
+                IntPtr oldPen = SelectObject(hdc, pen);
                 IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
                 IntPtr randicon = LoadIcon(IntPtr.Zero, new IntPtr(rndicons[r.Next(rndicons.Length)]));
 
@@ -1024,12 +987,31 @@ namespace gdi2
 
                 int rndx = r.Next(x);
                 int rndy = r.Next(y);
-
+                int rndwidth = r.Next(500, 1000);
+                int rndheight = r.Next(500, 1000);
                 DrawIcon(hdc, rndx, rndy, randicon);
+
+                // Draw circles 
+                SelectObject(hdc, oldPen);
+                Ellipse(hdc, rndx, rndy, rndx + rndwidth, rndy + rndheight);
+
+                Ellipse(hdc, rndx + 20, rndy + 20, rndx + rndwidth - 20, rndy + rndheight - 20);
+
+                Ellipse(hdc, rndx + 40, rndy + 40, rndx + rndwidth - 40, rndy + rndheight - 40);
+                
+                Ellipse(hdc, rndx + 60, rndy + 60, rndx + rndwidth - 60, rndy + rndheight - 60);
+
+                Ellipse(hdc, rndx + 80, rndy + 80, rndx + rndwidth - 80, rndy + rndheight - 80);
+
+                Ellipse(hdc, rndx + 100, rndy + 100, rndx + rndwidth - 100, rndy + rndheight - 100);
+
                 SelectObject(hdc, brush);
                 PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                StretchBlt(hdc, r.Next(5), r.Next(5), x - r.Next(10), y - r.Next(10), hdc, 0, 0, x, y, TernaryRasterOperations.SRCAND);
                 DeleteObject(brush);
                 DeleteObject(randicon);
+                DeleteObject(pen);
+                DeleteObject(oldPen);
                 DeleteDC(hdc);
                 Thread.Sleep(20);
             }
@@ -1037,10 +1019,11 @@ namespace gdi2
 
         static void ScrollEffect(int duration)
         {
+
             // Make sure these are initialized first!
             if (stopwatch == null) stopwatch = new Stopwatch();
             if (r == null) r = new Random();
-
+            BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
             stopwatch.Restart();
             IntPtr hdc = GetDC(IntPtr.Zero);
 
@@ -1103,14 +1086,253 @@ namespace gdi2
                 IntPtr mhdc = CreateCompatibleDC(hdc);
                 IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
                 IntPtr holdbit = SelectObject(mhdc, hbit);
-                int randsec = r.Next(x);
-                BitBlt(hdc, randsec, r.Next(-16, 16), r.Next(100), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
+                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
+
+                int randsec = r.Next(y);
+                BitBlt(hdc, randsec, r.Next(-100, 100), randsec, x, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
+                int randsec2 = r.Next(x);
+                BitBlt(hdc, randsec2, r.Next(-100, 100), r.Next(100), y, hdc, randsec, 5, TernaryRasterOperations.SRCCOPY);
+
+                if (r.Next(2) == 1)
+                {
+                    lppoint[0].X = (left + 30) + 0;
+                    lppoint[0].Y = (top - 30) + 0;
+                    lppoint[1].X = (right + 30) + 0;
+                    lppoint[1].Y = (top + 30) + 0;
+                    lppoint[2].X = (left - 30) + 0;
+                    lppoint[2].Y = (bottom - 30) + 0;
+                }
+                else
+                {
+                    lppoint[0].X = (left - 30) + 0;
+                    lppoint[0].Y = (top + 30) + 0;
+                    lppoint[1].X = (right - 30) + 0;
+                    lppoint[1].Y = (top - 30) + 0;
+                    lppoint[2].X = (left + 30) + 0;
+                    lppoint[2].Y = (bottom + 30) + 0;
+                }
+                PlgBlt(mhdc, lppoint, hdc, left, top, (right - left), (bottom - top), IntPtr.Zero, 0, 0);
+                AlphaBlend(hdc, 0, 0, x, y, mhdc, 0, 0, x, y, new BLENDFUNCTION(0, 0, 50, 0));
+                SelectObject(hdc, brush);
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                SelectObject(mhdc, holdbit);
+                DeleteObject(hbit);
+                DeleteDC(mhdc);
+                DeleteDC(hdc);
+                DeleteObject(brush);
                 DeleteObject(holdbit);
                 DeleteObject(hbit);
                 DeleteDC(mhdc);
                 DeleteDC(hdc);
             }
 
+        }
+        static void IdkWhatToCallThis(int duration)
+        {
+            BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
+            stopwatch.Restart();
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                r = new Random();
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr hpen = CreatePen(PenStyle.PS_SOLID, 1, rndclr[r.Next(rndclr.Length)]);
+                IntPtr hOldpen = SelectObject(hdc, hpen);
+                IntPtr mhdc = CreateCompatibleDC(hdc);
+                IntPtr hbit = CreateCompatibleBitmap(hdc, x, y);
+                IntPtr holdbit = SelectObject(mhdc, hbit);
+
+                IntPtr mhdc2 = CreateCompatibleDC(hdc);
+                IntPtr hbit2 = CreateCompatibleBitmap(hdc, x, y);
+                IntPtr holdbit2 = SelectObject(mhdc2, hbit2);
+
+                int randx = r.Next(x);
+                int randy = r.Next(y);
+                int randdiameter = r.Next(100, 200);
+                byte[] bits = { 0xff, 0xff, 0xc3, 0xc3, 0xc3, 0xc3, 0xff, 0xff };
+                IntPtr bitmap = CreateBitmap(8, 8, 1, 1, bits);
+                IntPtr patternbrush = CreatePatternBrush(bitmap);
+
+                // Draw 
+                SelectObject(hdc, patternbrush);
+                SetBkColor(hdc, (int)rndclr[r.Next(rndclr.Length)]);
+                SelectObject(hdc, patternbrush);
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                SelectObject(hdc, hpen);
+                Ellipse(hdc, randx, randy, randx + randdiameter, randy + randdiameter);
+
+                BitBlt(mhdc2, 0, 0, x, y, hdc, 0, 0, TernaryRasterOperations.SRCCOPY);
+                AlphaBlend(hdc, r.Next(-4, 4), r.Next(-4, 4), x, y, mhdc2, 0, 0, x, y, new BLENDFUNCTION(0, 0, 70, 0));
+
+                // Cleanup
+                SelectObject(mhdc2, holdbit2);
+                DeleteObject(hbit2);
+                DeleteObject(holdbit2);
+
+                DeleteObject(patternbrush);
+                SelectObject(hdc, holdbit);
+                DeleteObject(hbit);
+                DeleteObject(bitmap);
+                DeleteObject(holdbit);
+                DeleteObject(hpen);
+                DeleteObject(hOldpen);
+                DeleteDC(mhdc);
+                DeleteDC(mhdc2);
+                DeleteDC(hdc);
+
+            }
+        }
+        static void Glitch1(int duration)
+        {
+            BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
+            stopwatch.Restart();
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                r = new Random();
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
+                IntPtr hpen = CreatePen(PenStyle.PS_SOLID, 1, rndclr[r.Next(rndclr.Length)]);
+                SelectObject(hdc, brush);
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                StretchBlt(hdc, r.Next(5), r.Next(5), x - r.Next(5), y - r.Next(5), hdc, 0, 0, x, y, TernaryRasterOperations.SRCERASE);
+                //Draw random lines
+                
+                SelectObject(hdc, hpen);
+               
+                for (int i = 0; i < 10; i++)
+                {
+                    int randsec = r.Next(x);
+                    BitBlt(hdc, randsec, r.Next(-40, 40), r.Next(200), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
+                    int x1 = r.Next(x);
+                    int y1 = r.Next(y);
+                    int x2 = r.Next(x);
+                    int y2 = r.Next(y);
+                    MoveToEx(hdc, x1, y1, IntPtr.Zero);
+                    LineTo(hdc, x2, y2);
+                }
+                
+                DeleteDC(hdc);
+                DeleteObject(brush);
+                DeleteObject(hpen);
+                Thread.Sleep(20);
+            }
+        }
+        static void Glitch2(int duration)
+        {
+            BitBlt(hdcDesktop, left, top, width, height, hdcMem, 0, 0, TernaryRasterOperations.SRCCOPY);
+            stopwatch.Restart();
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                r = new Random();
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
+                IntPtr hpen = CreatePen(PenStyle.PS_SOLID, 1, rndclr[r.Next(rndclr.Length)]);
+                SelectObject(hdc, brush);
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                StretchBlt(hdc, r.Next(5), r.Next(5), x - r.Next(5), y - r.Next(5), hdc, 0, 0, x, y, TernaryRasterOperations.SRCAND);
+                //Draw random lines
+
+                SelectObject(hdc, hpen);
+
+                for (int i = 0; i < 10; i++)
+                {
+                    int randsec = r.Next(x);
+                    BitBlt(hdc, randsec, r.Next(-40, 40), r.Next(200), y, hdc, randsec, 0, TernaryRasterOperations.SRCCOPY);
+                    int x1 = r.Next(x);
+                    int y1 = r.Next(y);
+                    int x2 = r.Next(x);
+                    int y2 = r.Next(y);
+                    MoveToEx(hdc, x1, y1, IntPtr.Zero);
+                    LineTo(hdc, x2, y2);
+                }
+
+                DeleteDC(hdc);
+                DeleteObject(brush);
+                DeleteObject(hpen);
+                Thread.Sleep(20);
+            }
+        }
+        static void RandomMousePos()
+        {
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    r = new Random();
+                    int randomX = r.Next(left, right);
+                    int randomY = r.Next(top, bottom);
+                    SetCursorPos(randomX, randomY);
+                    Thread.Sleep(10); // Adjust the delay as needed
+                }
+            });
+        }
+        static void FinalPayload(int duration)
+        {
+            stopwatch.Restart();
+            while (stopwatch.ElapsedMilliseconds < duration)
+            {
+                r = new Random();
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                IntPtr brush = CreateSolidBrush(rndclr[r.Next(rndclr.Length)]);
+                IntPtr hatchbrush = CreateHatchBrush(r.Next(16), 0);
+                IntPtr hpen = CreatePen(PenStyle.PS_SOLID, 1, rndclr[r.Next(rndclr.Length)]);
+
+                int randsec = r.Next(x);
+                BitBlt(hdc, randsec, r.Next(-200, 200), r.Next(300), y, hdc, randsec, 0, TernaryRasterOperations.SRCERASE);
+                lppoint[0].X = (left + 50) + 0;
+                lppoint[0].Y = (top - 50) + 0;
+                lppoint[1].X = (right + 50) + 0;
+                lppoint[1].Y = (top + 50) + 0;
+                lppoint[2].X = (left - 50) + 0;
+                lppoint[2].Y = (bottom - 50) + 0;
+                PlgBlt(hdc, lppoint, hdc, left - 20, top - 20, (right - left) + 40, (bottom - top) + 40, IntPtr.Zero, 0, 0);
+                SelectObject(hdc, hatchbrush);
+
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                SelectObject(hdc, brush);
+                PatBlt(hdc, 0, 0, x, y, TernaryRasterOperations.PATINVERT);
+                SelectObject(hdc, hpen);
+                Ellipse(hdc, r.Next(x), r.Next(y), r.Next(x + 100), r.Next(y + 100));
+
+                DeleteObject(hpen);
+                DeleteObject(hatchbrush);
+                DeleteObject(brush);
+                DeleteDC(hdc);
+            }
+        }
+
+        static void startMsg()
+        {
+            const int IDOK = 1;
+            const int IDCANCEL = 2;
+
+            // MessageBox types
+            const uint MB_OKCANCEL = 0x00000001;
+            const uint MB_WARNING = 0x00000030;
+
+            uint boxType = MB_OKCANCEL | MB_WARNING;
+
+            int result1 = MessageBox(IntPtr.Zero, "The Program you are about to execute will shutdown your PC! No other harm will happen, but save your work before continuing. Also, EPILEPSY WARNING! This program contains flashing lights and loud noises.", "WARNING! - darkmatter.exe - by un3nown", (int)boxType);
+
+            string[] arg = { "start" };
+
+            if (result1 == IDOK)
+            {
+                int result2 = MessageBox(IntPtr.Zero, "FINAL WARNING! ARE YOU SURE THAT YOU WANT TO EXECUTE THIS PROGRAM? AFTER STARTING, IT IS NOT POSSIBLE TO STOP THIS!", "FINAL WARNING! - darkmatter.exe - by un3nown", (int)boxType);
+                if (result2 == IDOK)
+                {
+                    // If the user clicked OK, proceed with the main function
+                    Main(arg);
+                }
+                else if (result2 == IDCANCEL)
+                {
+                    Environment.Exit(0);
+                }
+
+            }
+            else if (result1 == IDCANCEL)
+            {
+                Environment.Exit(0);
+            }
         }
 
         public static void Main(string[] args)
@@ -1136,9 +1358,6 @@ namespace gdi2
                     case "hatchbrush":
                         HatchBrush(20000);
                         return;
-                    case "radialblur":
-                        RadialBlur(20000);
-                        return;
                     case "rndiconspam":
                         RndIconSpam(20000);
                         return;
@@ -1148,13 +1367,31 @@ namespace gdi2
                     case "melterextreme":
                         MelterExtreme(20000);
                         return;
+                    case "idk":
+                        IdkWhatToCallThis(20000);
+                        return;
+                    case "glitch1":
+                        Glitch1(20000);
+                        return;
+                    case "glitch2":
+                        Glitch2(20000);
+                        return;
+                    case "finalpayload":
+                        FinalPayload(20000);
+                        return;
+                    case "start":
+                        return;
+
                 }
             }
             //main loop
+            startMsg();
             var waveProvider = new BytebeatWaveProvider();
             var waveOut = new WaveOutEvent();
             waveOut.Init(waveProvider);
             waveOut.Play();
+            
+            RandomMousePos();
 
             TunnelEffect();
 
@@ -1174,21 +1411,34 @@ namespace gdi2
             TextSpamBW(20000);
 
             HatchBrush(20000);
-
-            RadialBlur(20000);
-
+            
             waveOut2.Stop();
             waveOut2.Dispose();
-            var waveProvider4 = new BytebeatWaveProvider4();
-            var waveOut4 = new WaveOutEvent();
-            waveOut4.Init(waveProvider4);
-            waveOut4.Play();
+            var waveProvider3 = new BytebeatWaveProvider3();
+            var waveOut3 = new WaveOutEvent();
+            waveOut3.Init(waveProvider3);
+            waveOut3.Play();
 
             RndIconSpam(13000);
 
             ScrollEffect(20000);
 
             MelterExtreme(20000);
+
+            IdkWhatToCallThis(20000);
+
+            Glitch1(20000);
+
+            Glitch2(20000);
+
+            FinalPayload(20000);
+
+            // final shutdown
+            Process.Start(new ProcessStartInfo("shutdown", "/s /t 0")
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false
+            });
 
         }
     }
