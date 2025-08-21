@@ -1611,15 +1611,14 @@ namespace disassembly
             IntPtr oldBitmap = SelectObject(memDC, hBitmap);
             stopwatch.Restart();
 
-            //bitmap info for shader
-
             BITMAPINFO bmi = new BITMAPINFO();
             bmi.bmiHeader.biSize = (uint)Marshal.SizeOf(typeof(BITMAPINFOHEADER));
             bmi.bmiHeader.biWidth = x;
-            bmi.bmiHeader.biHeight = -y; // Negative for top-down
+            bmi.bmiHeader.biHeight = -y;
             bmi.bmiHeader.biPlanes = 1;
             bmi.bmiHeader.biBitCount = 24;
             bmi.bmiHeader.biCompression = 0;
+
             POINT[] lppoint = new POINT[3];
             int stride = ((x * 3 + 3) & ~3);
             IntPtr bitsPtr;
@@ -1627,7 +1626,6 @@ namespace disassembly
             IntPtr oldDib = SelectObject(memDC, dibSection);
             int scrollOffset = 10;
             int scrollSpeed = 100;
-           
 
             rnd = new Random();
             while (stopwatch.ElapsedMilliseconds < duration)
@@ -1640,52 +1638,68 @@ namespace disassembly
 
                 BitBlt(memDC, 0, 0, x, y, hdc, 0, 0, Rop.SRCCOPY);
                 byte[] buffer = new byte[stride * y];
-                Marshal.Copy(bitsPtr, buffer, 0, buffer.Length);
-                // Process pixels (each pixel is 3 bytes - BGR format)
-                for (int rowY = 0; rowY < y; rowY++)
-                {
-                    for (int colX = 0; colX < x; colX++)
-                    {
-                        int i = (rowY * stride) + (colX * 3);
-                        if (i + 2 >= buffer.Length) continue; // Ensure we don't exceed buffer bounds
-                        // Safe pixel reading with bounds checking
-                        byte b = buffer[i];
-                        byte g = i + 3 < buffer.Length ? buffer[i + 1] : (byte)0;
-                        byte r = i + 2 < buffer.Length ? buffer[i + 2] : (byte)0;
-                        // Apply a simple color transformation
-                        buffer[i + 1] = (byte)(1 + (rowY * 4)); // Average for grayscale effect
-                        buffer[i + 1] = (byte)((2 * (rowY * 4)));
-                        buffer[i + 3] = (byte)(((1 * (colX * 2))));
-                    }
-                }
-                Marshal.Copy(buffer, 0, bitsPtr, buffer.Length);
-                // Add some visual effects
-                // Screen Scoll effect
 
+                try
+                {
+                    Marshal.Copy(bitsPtr, buffer, 0, buffer.Length);
+
+                    // Safe pixel processing with bounds checking
+                    for (int rowY = 0; rowY < y; rowY++)
+                    {
+                        for (int colX = 0; colX < x; colX++)
+                        {
+                            int i = (rowY * stride) + (colX * 3);
+                            if (i + 3 >= buffer.Length) continue; // Skip if we'd go out of bounds
+
+                            // Apply color transformation safely
+                            buffer[i + 1] = (byte)(1 + (rowY * 4));
+                            buffer[i + 1] = (byte)((2 * (rowY * 4)) & 0xFF); // Ensure we stay in byte range
+                            if (i + 3 < buffer.Length)
+                            {
+                                buffer[i + 3] = (byte)(((1 * (colX * 2))) & 0xFF);
+                            }
+                        }
+                    }
+
+                    Marshal.Copy(buffer, 0, bitsPtr, buffer.Length);
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+
+                // Rest of the visual effects...
                 PatBlt(hdc, 0, 0, x, y, Rop.DSTINVERT);
                 mouseX = rnd.Next(x);
                 mouseY = rnd.Next(y);
 
                 SetCursorPos(mouseX, mouseY);
 
+                // Safe scrolling with bounds checking
                 int horizontalChance = rnd.Next(5);
-
-
-                if ( horizontalChance < 2 )
+                if (horizontalChance < 2)
                 {
                     verticalScroll = false;
-                    
                 }
 
-                if (verticalScroll)
+                try
                 {
-                    BitBlt(hdc, 0, scrollOffset, x, y - scrollOffset, memDC, 0, 0, Rop.SRCCOPY);
-                    BitBlt(hdc, 0, 0, x, scrollOffset, memDC, 0, y - scrollOffset, Rop.SRCCOPY);
+                    if (verticalScroll)
+                    {
+                        int safeScrollOffset = Math.Min(scrollOffset, y);
+                        BitBlt(hdc, 0, safeScrollOffset, x, Math.Max(0, y - safeScrollOffset), memDC, 0, 0, Rop.SRCCOPY);
+                        BitBlt(hdc, 0, 0, x, safeScrollOffset, memDC, 0, Math.Max(0, y - safeScrollOffset), Rop.SRCCOPY);
+                    }
+                    else
+                    {
+                        int safeScrollOffset = Math.Min(scrollOffset, x);
+                        BitBlt(hdc, safeScrollOffset, 0, Math.Max(0, x - safeScrollOffset), y, memDC, 0, 0, Rop.SRCCOPY);
+                        BitBlt(hdc, 0, 0, safeScrollOffset, y, memDC, Math.Max(0, x - safeScrollOffset), 0, Rop.SRCCOPY);
+                    }
                 }
-                else
+                catch (Exception)
                 {
-                    BitBlt(hdc, scrollOffset, 0, x - scrollOffset, y, memDC, 0, 0, Rop.SRCCOPY);
-                    BitBlt(hdc, 0, 0, scrollOffset, y, memDC, x - scrollOffset, 0, Rop.SRCCOPY);
+                    // Log or handle error
                 }
 
                 if (rnd.Next(100) < 20) // 20% Chance für Glitch-Effekt
