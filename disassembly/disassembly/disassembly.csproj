@@ -6,7 +6,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{6BE8750F-54F0-4F97-9162-C65C0AB8008F}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>disassembly</RootNamespace>
     <AssemblyName>disassembly</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
