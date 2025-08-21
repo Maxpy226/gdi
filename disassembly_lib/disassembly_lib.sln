@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36408.4
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "disassembly_lib", "disassembly_lib\disassembly_lib.csproj", "{D2E72713-C429-4C2A-8D19-40D4E69F44AB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D2E72713-C429-4C2A-8D19-40D4E69F44AB}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{D2E72713-C429-4C2A-8D19-40D4E69F44AB}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{D2E72713-C429-4C2A-8D19-40D4E69F44AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2E72713-C429-4C2A-8D19-40D4E69F44AB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F7DB7515-6FF8-4D4B-A2CB-D8E0561B3DF8}
+	EndGlobalSection
+EndGlobal

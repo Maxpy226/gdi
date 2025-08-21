@@ -1,0 +1,14 @@
+C:\Users\abc\Desktop\coding\gdi\disassembly\disassembly\bin\Debug\disassembly.exe.config
+C:\Users\abc\Desktop\coding\gdi\disassembly\disassembly\bin\Debug\disassembly.exe
+C:\Users\abc\Desktop\coding\gdi\disassembly\disassembly\bin\Debug\disassembly.pdb
+C:\Users\abc\Desktop\coding\gdi\disassembly\disassembly\bin\Debug\disassembly_lib.dll
+C:\Users\abc\Desktop\coding\gdi\disassembly\disassembly\bin\Debug\disassembly_lib.pdb
+C:\Users\abc\Desktop\coding\gdi\disassembly\disassembly\bin\Debug\disassembly_lib.dll.config
+C:\Users\abc\Desktop\coding\gdi\disassembly\disassembly\obj\Debug\disassembly.csproj.AssemblyReference.cache
+C:\Users\abc\Desktop\coding\gdi\disassembly\disassembly\obj\Debug\disassembly.csproj.CoreCompileInputs.cache
+C:\Users\abc\Desktop\coding\gdi\disassembly\disassembly\obj\Debug\disassem.4A8A9D4C.Up2Date
+C:\Users\abc\Desktop\coding\gdi\disassembly\disassembly\obj\Debug\disassembly.exe
+C:\Users\abc\Desktop\coding\gdi\disassembly\disassembly\obj\Debug\disassembly.pdb
+C:\Users\abc\Desktop\coding\gdi\disassembly\disassembly\bin\Debug\Costura.dll
+C:\Users\abc\Desktop\coding\gdi\disassembly\disassembly\bin\Debug\Costura.pdb
+C:\Users\abc\Desktop\coding\gdi\disassembly\disassembly\bin\Debug\Costura.xml
