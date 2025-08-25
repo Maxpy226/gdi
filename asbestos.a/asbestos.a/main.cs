@@ -835,7 +835,7 @@ ref     BITMAPINFO lpbmi, uint usage);
         public static void payload2(int duration)
         {
             sw.Restart();
-            PlayBytebeat(t => t * ((t / 2 >> 10 | t % 16 * t >> 8) & 8 * t >> 12 & 18) | -(t / 16) + 64, durationSeconds: duration / 1000);
+            PlayBytebeat(t => t * ((t / 2 >> 10 | t % 16 * t >> 8) & 8 * t >> 12 & 18) | -(t / 16) + 64, durationSeconds: (duration / 1000) - 1);
             while (sw.ElapsedMilliseconds < duration)
             {
                 IntPtr hdc = GetDC(IntPtr.Zero);
@@ -990,7 +990,7 @@ ref     BITMAPINFO lpbmi, uint usage);
 
             sw.Restart();
 
-            PlayBytebeat(t => (t * 9 & (t * 1 >> 4) | t * 5 & (t >> 7) | t * 3 & (t * 4 >> 12)), durationSeconds: duration / 1000);
+            PlayBytebeat(t => (t * 9 & (t * 1 >> 4) | t * 5 & (t >> 7) | t * 3 & (t * 4 >> 12)), durationSeconds: (duration / 1000) - 1);
 
             while (sw.ElapsedMilliseconds < duration)
             {
@@ -1031,7 +1031,7 @@ ref     BITMAPINFO lpbmi, uint usage);
             IntPtr bmp = CreateCompatibleBitmap(hdc, x, y);
             SelectObject(memdc, bmp);
 
-            PlayBytebeat(t => (t * ((3 + (1 ^ t >> 10 & 5)) * (5 + (3 & t >> 14)))) >> (t >> 8 & 3), durationSeconds: duration / 1000);
+            PlayBytebeat(t => (t * ((3 + (1 ^ t >> 10 & 5)) * (5 + (3 & t >> 14)))) >> (t >> 8 & 3), durationSeconds: (duration / 1000) - 1);
         }
 
         public static void Main(string[] args)
