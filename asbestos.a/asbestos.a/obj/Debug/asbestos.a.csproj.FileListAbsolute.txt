@@ -1,0 +1,8 @@
+C:\Users\abc\Desktop\coding\gdi\asbestos.a\asbestos.a\bin\Debug\asbestos.a.exe.config
+C:\Users\abc\Desktop\coding\gdi\asbestos.a\asbestos.a\bin\Debug\asbestos.a.exe
+C:\Users\abc\Desktop\coding\gdi\asbestos.a\asbestos.a\bin\Debug\asbestos.a.pdb
+C:\Users\abc\Desktop\coding\gdi\asbestos.a\asbestos.a\obj\Debug\asbestos.a.csproj.AssemblyReference.cache
+C:\Users\abc\Desktop\coding\gdi\asbestos.a\asbestos.a\obj\Debug\asbestos.a.csproj.CoreCompileInputs.cache
+C:\Users\abc\Desktop\coding\gdi\asbestos.a\asbestos.a\obj\Debug\asbestos.a.exe
+C:\Users\abc\Desktop\coding\gdi\asbestos.a\asbestos.a\obj\Debug\asbestos.a.pdb
+C:\Users\abc\Desktop\coding\gdi\asbestos.a\asbestos.a\obj\Debug\asbestos.a.exe.config
