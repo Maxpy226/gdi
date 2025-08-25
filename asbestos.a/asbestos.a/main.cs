@@ -1,14 +1,15 @@
-﻿using System;
+﻿using NAudio.Wave;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Drawing;
-using NAudio.Wave;
-using System.Diagnostics;
-using System.Threading;
+using static asbestos.a.main;
 
 namespace asbestos.a
 {
@@ -55,7 +56,7 @@ namespace asbestos.a
         [DllImport("gdi32.dll")]
         static extern IntPtr CreateSolidBrush(uint crColor);
         [DllImport("gdi32.dll")]
-        static extern IntPtr CreateBitmap(int nWidth, int nHeight, uint cPlanes, uint cBitsPerPel, IntPtr lpvBits);
+        static extern IntPtr CreateBitmap(int nWidth, int nHeight, uint cPlanes, uint cBitsPerPel, byte[] lpvBits);
         [DllImport("gdi32.dll", EntryPoint = "DeleteDC")]
         public static extern bool DeleteDC(IntPtr hdc);
         [DllImport("gdi32.dll")]
@@ -221,8 +222,8 @@ ref     BITMAPINFO lpbmi, uint usage);
 
         [DllImport("gdi32.dll")]
         public static extern uint SetTextColor(IntPtr hdc, int crColor);
-
-
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern bool DrawIconEx(IntPtr hdc, int xLeft, int yTop, IntPtr hIcon, int cxWidth, int cyWidth, uint istepIfAniCur, IntPtr hbrFlickerFreeDraw, uint diFlags);
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
         public struct RAMP
@@ -752,6 +753,10 @@ ref     BITMAPINFO lpbmi, uint usage);
             IDI_ERROR, IDI_HAND, IDI_WARNING, IDI_QUESTION, IDI_ASTERISK, IDI_WINLOGO
         };
 
+        static int left, top, right, bottom;
+
+        static POINT[] lppoint = new POINT[3];
+
         static string[] text = new string[]
         {
             "illegal operation",
@@ -781,7 +786,7 @@ ref     BITMAPINFO lpbmi, uint usage);
             bmi.bmiHeader.biBitCount = 24;
             bmi.bmiHeader.biCompression = 0;
 
-            PlayBytebeat(t => (t * (t >> 9 | t >> 13)) & 255, durationSeconds: (duration / 1000) - 2);
+            PlayBytebeat(t => (t * (t >> 9 | t >> 13)) & 255, durationSeconds: (duration / 1000) - 1);
 
             int stride = ((x * 3 + 3) & ~3); // row alignment
             IntPtr bits;
@@ -835,7 +840,7 @@ ref     BITMAPINFO lpbmi, uint usage);
         public static void payload2(int duration)
         {
             sw.Restart();
-            PlayBytebeat(t => t * ((t / 2 >> 10 | t % 16 * t >> 8) & 8 * t >> 12 & 18) | -(t / 16) + 64, durationSeconds: (duration / 1000) - 2);
+            PlayBytebeat(t => t * ((t / 2 >> 10 | t % 16 * t >> 8) & 8 * t >> 12 & 18) | -(t / 16) + 64, durationSeconds: (duration / 1000) - 1);
             while (sw.ElapsedMilliseconds < duration)
             {
                 IntPtr hdc = GetDC(IntPtr.Zero);
@@ -869,10 +874,7 @@ ref     BITMAPINFO lpbmi, uint usage);
                 points[2] = new POINT(points[0].X - rnd.Next(5, 20), rnd.Next(5, 20));
                 Polygon(hdc, points, 3);
 
-
                 PatBlt(hdc, 0, 0, x, y, Rop.PATINVERT);
-
-
 
                 DeleteDC(memdc);
                 DeleteDC(hdc);
@@ -907,7 +909,7 @@ ref     BITMAPINFO lpbmi, uint usage);
             IntPtr bits;
             IntPtr dibSection = CreateDIBSection(memdc, ref bmi, (uint)DIB_Color_Mode.DIB_RGB_COLORS, out bits, IntPtr.Zero, 0);
 
-            PlayBytebeat(t => (100 * ((t << 2 | t >> 5 | t ^ 63) & (t << 10 | t >> 11))), durationSeconds: (duration / 1000) - 2);
+            PlayBytebeat(t => (100 * ((t << 2 | t >> 5 | t ^ 63) & (t << 10 | t >> 11))), durationSeconds: (duration / 1000) - 1);
             while (sw.ElapsedMilliseconds < duration) 
             {
                 IntPtr brush = CreateSolidBrush(colors[rnd.Next(colors.Length)]);
@@ -1032,14 +1034,184 @@ ref     BITMAPINFO lpbmi, uint usage);
             SelectObject(memdc, bmp);
 
             PlayBytebeat(t => (t * ((3 + (1 ^ t >> 10 & 5)) * (5 + (3 & t >> 14)))) >> (t >> 8 & 3), durationSeconds: (duration / 1000) - 1);
+
+            sw.Restart();
+            while (sw.ElapsedMilliseconds < duration)
+            {
+                byte[] bits = { 0xff, 0xff, 0xc3, 0xc3, 0xc3, 0xc3, 0xff, 0xff };
+                IntPtr bitmap = CreateBitmap(8, 8, 1, 1, bits);
+                IntPtr patternbrush = CreatePatternBrush(bitmap);
+                IntPtr brush = CreateSolidBrush(colors[rnd.Next(colors.Length)]);
+
+                SelectObject(hdc, brush);
+
+                //recolor random lines
+
+                int randlinewidth = rnd.Next(10, 200);
+
+                int randliney = rnd.Next(y);
+                PatBlt(hdc, 0, randliney, x, randlinewidth, Rop.PATINVERT);
+                int randlinex = rnd.Next(x);
+                PatBlt(hdc, randlinex, 0, randlinewidth, y, Rop.PATINVERT);
+
+                //radialblur effect
+                if (rnd.Next(2) == 1)
+                {
+                    lppoint[0].X = (left + 30) + 0;
+                    lppoint[0].Y = (top - 30) + 0;
+                    lppoint[1].X = (right + 30) + 0;
+                    lppoint[1].Y = (top + 30) + 0;
+                    lppoint[2].X = (left - 30) + 0;
+                    lppoint[2].Y = (bottom - 30) + 0;
+                }
+                else
+                {
+                    lppoint[0].X = (left - 30) + 0;
+                    lppoint[0].Y = (top + 30) + 0;
+                    lppoint[1].X = (right - 30) + 0;
+                    lppoint[1].Y = (top - 30) + 0;
+                    lppoint[2].X = (left + 30) + 0;
+                    lppoint[2].Y = (bottom + 30) + 0;
+                }
+                PlgBlt(memdc, lppoint, hdc, left, top, (right - left), (bottom - top), IntPtr.Zero, 0, 0);
+                AlphaBlend(hdc, 0, 0, x, y, memdc, 0, 0, x, y, new BLENDFUNCTION(0, 0, 100, 0));
+
+                SelectObject(hdc, patternbrush);
+                SetBkColor(hdc, (int)colors[rnd.Next(colors.Length)]);
+                SelectObject(hdc, patternbrush);
+                PatBlt(hdc, 0, 0, x, y, Rop.PATINVERT);
+
+                //random polygons
+
+                POINT[] points = new POINT[3];
+                points[0] = new POINT(rnd.Next(x), rnd.Next(y));
+                points[1] = new POINT(rnd.Next(x), rnd.Next(y));
+                points[2] = new POINT(rnd.Next(x), rnd.Next(y));
+                Polygon(hdc, points, 3);
+
+                //draw random icon thats scaled so its bigger and draw lines
+                IntPtr drawicon = LoadIcon(IntPtr.Zero, (IntPtr)icons[rnd.Next(icons.Length)]);
+                //pen for lines
+                IntPtr hPen = CreatePen(PenStyle.PS_SOLID, 10, colors[rnd.Next(colors.Length)]);
+                SelectObject(hdc, hPen);
+                int x1 = rnd.Next(x);
+                int y1 = rnd.Next(y);
+                int x2 = rnd.Next(x);
+                int y2 = rnd.Next(y);
+                MoveToEx(hdc, x1, y1, IntPtr.Zero);
+                LineTo(hdc, x2, y2);
+                SelectObject(hdc, drawicon);
+                DrawIconEx(hdc, rnd.Next(x - 500), rnd.Next(y - 500), drawicon, 200, 200, 0, IntPtr.Zero, 0x0003);
+                DeleteObject(drawicon);
+                DeleteObject(brush);
+                DeleteObject(patternbrush);
+                DeleteObject(bitmap);
+            }
+
+        
+            DeleteDC(hdc);
+            DeleteDC(memdc);
+            DeleteObject(bmp);
+
         }
 
+        public static void payload6(int duration)
+        {
+            rnd = new Random();
+            sw.Restart();
+            IntPtr hdc = GetDC(IntPtr.Zero);
+            IntPtr memdc = CreateCompatibleDC(hdc);
+            IntPtr bmp = CreateCompatibleBitmap(hdc, x, y);
+            SelectObject(memdc, bmp);
+
+            PlayBytebeat(t => (int)((t * ((((t & 4096u) != 0) ? (((t % 65536u) < 59392u) ? 7u : (t & 7u)) : 16u) ^ (1u & (t >> 14)))) >> (int)(3u & (-(int)t >> (((t & 2048u) != 0) ? 2 : 10)))), 40);
+
+            while (sw.ElapsedMilliseconds < duration)
+            {
+                IntPtr brush = CreateSolidBrush(colors[rnd.Next(colors.Length)]);
+                //vertical screen scroll effect
+                for (int i = 0; i < 50; i++)
+                {
+                    IntPtr drawicon = LoadIcon(IntPtr.Zero, (IntPtr)icons[rnd.Next(icons.Length)]);
+                    brush = CreateSolidBrush(colors[rnd.Next(colors.Length)]);
+                    SelectObject(hdc, brush);
+                    //capture screen 
+                    BitBlt(memdc, 0, 0, x, y, hdc, 0, 0, Rop.SRCCOPY);
+                    //vertical screen scroll effect
+                    int scrollAmount = (int)(200) % y;
+                    BitBlt(hdc, 0, scrollAmount, x, y - scrollAmount, memdc, 0, 0, Rop.SRCCOPY);
+                    BitBlt(hdc, 0, 0, x, scrollAmount, memdc, 0, y - scrollAmount, Rop.SRCCOPY);
+
+                    //draw text at random pos
+                    IntPtr hFont = CreateFont(-100, 0, 0, 0, 300, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
+                    IntPtr oldFont = SelectObject(hdc, hFont);
+
+                    SetBkMode(hdc, 1); // Transparent
+                    SetTextColor(hdc, (int)colors[rnd.Next(colors.Length)]);
+
+                    // Pick string once
+                    string s = text[rnd.Next(text.Length)];
+                    TextOut(hdc, rnd.Next(x), rnd.Next(y), s, s.Length);
+
+                    int randlinewidth = rnd.Next(10, 200);
+
+                    int randliney = rnd.Next(y);
+                    PatBlt(hdc, 0, randliney, x, randlinewidth, Rop.PATINVERT);
+                    SelectObject(hdc, drawicon);
+                    DrawIcon(hdc, rnd.Next(x), rnd.Next(y), drawicon);
+
+                    int randsec = rnd.Next(x);
+                    StretchBlt(hdc, randsec, rnd.Next(y), x - randsec, y - rnd.Next(y), memdc, 0, 0, x, y, Rop.SRCCOPY);
+
+
+                    DeleteObject(drawicon);
+
+                }
+
+
+                SelectObject(hdc, brush);
+
+                for (int i = 0; i < 50; i++)
+                {
+                    IntPtr drawicon = LoadIcon(IntPtr.Zero, (IntPtr)icons[rnd.Next(icons.Length)]);
+                    //draw text at random pos
+                    IntPtr hFont = CreateFont(-100, 0, 0, 0, 300, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
+                    IntPtr oldFont = SelectObject(hdc, hFont);
+
+                    SetBkMode(hdc, 1); // Transparent
+                    SetTextColor(hdc, (int)colors[rnd.Next(colors.Length)]);
+
+                    // Pick string once
+                    string s = text[rnd.Next(text.Length)];
+                    TextOut(hdc, rnd.Next(x), rnd.Next(y), s, s.Length);
+                    
+                    int randsecx = rnd.Next(x);
+                    int randsecy = rnd.Next(y);
+
+                    //melt effect as fast only forward
+                    BitBlt(hdc, randsecx, rnd.Next(-40, 40), rnd.Next(1000), y, hdc, randsecx, 0, Rop.SRCCOPY);
+                    BitBlt(hdc, rnd.Next(-40, 40), randsecy, x, rnd.Next(1000), hdc, 0, randsecy, Rop.SRCCOPY);
+                    SelectObject(hdc, drawicon);
+                    DrawIcon(hdc, rnd.Next(x), rnd.Next(y), drawicon);
+                    DeleteObject(drawicon);
+                }
+                
+                DeleteObject(brush);
+
+            }
+            DeleteDC(hdc);
+            DeleteDC(memdc);
+            DeleteObject(bmp);
+        }
         public static void Main(string[] args)
         {
             SetProcessDPIAware();
             x = Screen.PrimaryScreen.Bounds.Width;
             y = Screen.PrimaryScreen.Bounds.Height;
-
+            left = Screen.PrimaryScreen.Bounds.Left;
+            top = Screen.PrimaryScreen.Bounds.Top;
+            right = Screen.PrimaryScreen.Bounds.Right;
+            bottom = Screen.PrimaryScreen.Bounds.Bottom;
             //make a screen backup
 
             IntPtr hdc = GetDC(IntPtr.Zero);
@@ -1070,6 +1242,9 @@ ref     BITMAPINFO lpbmi, uint usage);
                     case "5":
                         payload5(40000);
                         return;
+                    case "6":
+                        payload6(40000);
+                        return;
                 }
             }
             Payload1(40000);
@@ -1083,6 +1258,8 @@ ref     BITMAPINFO lpbmi, uint usage);
             BitBlt(hdc, 0, 0, x, y, memdc, 0, 0, Rop.SRCCOPY);
 
             payload4(40000);
+
+            payload5(40000);
 
 
         }
