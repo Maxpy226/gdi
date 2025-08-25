@@ -1037,8 +1037,8 @@ ref     BITMAPINFO lpbmi, uint usage);
         public static void Main(string[] args)
         {
             SetProcessDPIAware();
-            int x = Screen.PrimaryScreen.Bounds.Width;
-            int y = Screen.PrimaryScreen.Bounds.Height;
+            x = Screen.PrimaryScreen.Bounds.Width;
+            y = Screen.PrimaryScreen.Bounds.Height;
 
             //make a screen backup
 
