@@ -781,7 +781,7 @@ ref     BITMAPINFO lpbmi, uint usage);
             bmi.bmiHeader.biBitCount = 24;
             bmi.bmiHeader.biCompression = 0;
 
-            PlayBytebeat(t => (t * (t >> 9 | t >> 13)) & 255, durationSeconds: duration / 1000);
+            PlayBytebeat(t => (t * (t >> 9 | t >> 13)) & 255, durationSeconds: (duration / 1000) - 2);
 
             int stride = ((x * 3 + 3) & ~3); // row alignment
             IntPtr bits;
@@ -835,7 +835,7 @@ ref     BITMAPINFO lpbmi, uint usage);
         public static void payload2(int duration)
         {
             sw.Restart();
-            PlayBytebeat(t => t * ((t / 2 >> 10 | t % 16 * t >> 8) & 8 * t >> 12 & 18) | -(t / 16) + 64, durationSeconds: (duration / 1000) - 1);
+            PlayBytebeat(t => t * ((t / 2 >> 10 | t % 16 * t >> 8) & 8 * t >> 12 & 18) | -(t / 16) + 64, durationSeconds: (duration / 1000) - 2);
             while (sw.ElapsedMilliseconds < duration)
             {
                 IntPtr hdc = GetDC(IntPtr.Zero);
@@ -907,8 +907,8 @@ ref     BITMAPINFO lpbmi, uint usage);
             IntPtr bits;
             IntPtr dibSection = CreateDIBSection(memdc, ref bmi, (uint)DIB_Color_Mode.DIB_RGB_COLORS, out bits, IntPtr.Zero, 0);
 
-            PlayBytebeat(t => (100 * ((t << 2 | t >> 5 | t ^ 63) & (t << 10 | t >> 11))), durationSeconds: duration / 1000);
-            while (sw.ElapsedMilliseconds < duration)
+            PlayBytebeat(t => (100 * ((t << 2 | t >> 5 | t ^ 63) & (t << 10 | t >> 11))), durationSeconds: (duration / 1000) - 2);
+            while (sw.ElapsedMilliseconds < duration) 
             {
                 IntPtr brush = CreateSolidBrush(colors[rnd.Next(colors.Length)]);
                 SelectObject(hdc, brush);
