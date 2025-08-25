@@ -1124,7 +1124,7 @@ ref     BITMAPINFO lpbmi, uint usage);
             IntPtr bmp = CreateCompatibleBitmap(hdc, x, y);
             SelectObject(memdc, bmp);
 
-            PlayBytebeat(t => (int)((t * ((((t & 4096u) != 0) ? (((t % 65536u) < 59392u) ? 7u : (t & 7u)) : 16u) ^ (1u & (t >> 14)))) >> (int)(3u & (-(int)t >> (((t & 2048u) != 0) ? 2 : 10)))), 40);
+            PlayBytebeat(t => (int)((t * ((((t & 4096u) != 0) ? (((t % 65536u) < 59392u) ? 7u : (t & 7u)) : 16u) ^ (1u & (t >> 14)))) >> (int)(3u & (-(int)t >> (((t & 2048u) != 0) ? 2 : 10)))), 42);
 
             while (sw.ElapsedMilliseconds < duration)
             {
