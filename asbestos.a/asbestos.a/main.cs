@@ -1074,12 +1074,13 @@ ref     BITMAPINFO lpbmi, uint usage);
             }
             Payload1(40000);
 
-            //restore screen
             BitBlt(hdc, 0, 0, x, y, memdc, 0, 0, Rop.SRCCOPY);
 
             payload2(40000);
 
             payload3(40000);
+
+            BitBlt(hdc, 0, 0, x, y, memdc, 0, 0, Rop.SRCCOPY);
 
             payload4(40000);
 
